@@ -2,17 +2,16 @@ CC = g++
 CFLAGS = -g -Wall
 C = -c
 VERSION = -std=c++14
-OUTPUT  = labs
-SOURCES = main.cpp LABS.cpp
+OUTPUT  = labs.exe
+SOURCES = main.cpp methods.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 REMOVE  = labs  *.o
 
 $(OUTPUT): $(OBJECTS)
 	$(CC) $(CFLAGS) $(VERSION) $(OBJECTS) -o $(OUTPUT)
-main.o: main.cpp LABS.cpp LABS.h
-	$(CC) $(VERSION) $(C) $(CFLAGS) main.cpp
-LABS.o: LABS.cpp LABS.h
-	$(CC) $(VERSION) $(C) $(CFLAGS) LABS.cpp
+%.o: %.c 
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $<
+
 .PHONY: clean
 clean:
 	@rm -rf $(REMOVE)

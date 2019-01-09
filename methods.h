@@ -2,10 +2,11 @@
 #include <vector>
 #include <random> 
 
-class LABS {
+class Methods {
 
 public:
-	LABS(int);
+	Methods(int);
+	// todo descriptive names 
 	int C(int, const std::vector<bool>&);
 	int E(const std::vector<bool>&);
 	double F(const std::vector<bool>&);
@@ -13,7 +14,6 @@ public:
 // I am not sure about the use of the reference
 	void sbm(std::vector<bool>&, int l);
 	
-
 
 private:
 	int N;

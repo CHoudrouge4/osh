@@ -1,10 +1,10 @@
 #include <iostream>
-#include "LABS.h"
+#include "methods.h"
 
 
 int main () {
 	
-	LABS l(5);
+	Methods l(5);
 //	std::cout << "E: " << l.E() << '\n';
 
 	return 0;
