@@ -22,6 +22,7 @@ int main () {
 	std::vector<bool> res6 = l.one_plus_one(10000);
 	std::cout << "mu lambda F 10^4: " << l.F(res6) << '\n';
 
-
+	// don't forget adding 0 at the biggining
+	std::cout << l.F({0, 1,1, 1, 0, 1}) << '\n';
 	return 0;
 }

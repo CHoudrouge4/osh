@@ -7,10 +7,22 @@
 std::random_device Methods::rd;
 std::mt19937 Methods::gen(rd());
 
+template <class T>
+std::ostream& operator << (std::ostream& os, const std::vector<T>& v) {
+	os << "{ ";
+	for(int i = 1; i < v.size(); ++i) {
+		os << " " << v[i];
+	}
+	os << "}";
+	return os;
+}
+
 Methods::Methods (int n) {
-	N  = n;
+	N = n;
 	N2 = n * n;
-	S = bvec(N + 1, false);
+	S = bvec(n + 1, false);
+	bin_dis = std::binomial_distribution<int>(n, 1/((double)N));
+	dis = std::uniform_int_distribution<int>(1, n);
 }
 
 int Methods::C(int k, const bvec &S) {
@@ -76,10 +88,34 @@ bvec Methods::mu_lambda(int mu, int lambda, int iterN) {
 	return *maxValue;
 }
 
-void Methods::sbm(bvec& x) {
-	std::uniform_int_distribution<> dis(1, x.size());
-	for (int i = 0; i < x.size(); i++) {
-		int guess = dis(gen);
-		if (guess == 1) x[i] = x[i] xor 1;
+
+void Methods::sbmN(bvec& x, int l) {
+	for(int i = 0; i < l; ++i) {
+		int index = dis(gen);
+		x[index] = x[index] xor 1;
+	}
+}
+void Methods::sbm(bvec& x) { sbmN(x, bin_dis(gen)); }
+
+
+std::vector<bool> Methods::get_neighbor() {
+	std::vector<bool> neighbor = S;
+	sbmN(neighbor, 1);
+	return neighbor;
+}
+
+void Methods::simulating_annealing(const double t, int nb_iterations) {
+	std::uniform_real_distribution<> urd(0, 1);
+	double temperature = t;
+	sbm(S);
+	for(int i = 0; i < nb_iterations; ++i) {
+		auto neighbor = get_neighbor();
+		double fs = F(S);
+		double fn = F(neighbor);
+		if(fn > fs) {
+			S = neighbor;
+		} else {
+
+		}
 	}
 }

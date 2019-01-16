@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <random>
-
+#include <iostream>
 
 using bvec = std::vector<bool>;
 
@@ -17,12 +17,21 @@ public:
 	bvec one_plus_one(int iterN);
 
 	static bvec random_vect(int len);
-	static void sbm(bvec&);
+	void sbmN(bvec&, int);
+	void sbm(bvec&);
+
+	void simulating_annealing(const double t, int nb_iterations);
+	void init_simulating_annealing(const double t);
+	std::vector<bool> get_neighbor();
+	void cooling();
 
 private:
 	int N;
 	int N2;
+	double opt;
 	bvec S;
+	std::binomial_distribution<int> bin_dis;
+	std::uniform_int_distribution<int> dis;
 
 	// Random Generation
 	static std::random_device rd;
