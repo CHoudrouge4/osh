@@ -16,8 +16,10 @@ public:
 	bvec mu_lambda(int mu, int lambda, int iterN);
 	bvec one_plus_one(int iterN);
 
-	static bvec random_vect(int len);
-	void sbmN(bvec&, int);
+	static bvec random_bvec(int len);
+	bvec random_bvec();
+
+	void sbm(bvec&, int);
 	void sbm(bvec&);
 
 	void simulating_annealing(const double t, int nb_iterations);

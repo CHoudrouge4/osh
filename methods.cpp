@@ -20,21 +20,21 @@ std::ostream& operator << (std::ostream& os, const std::vector<T>& v) {
 Methods::Methods (int n) {
 	N = n;
 	N2 = n * n;
-	S = bvec(n + 1, false);
+	S = bvec(n, false);
 	bin_dis = std::binomial_distribution<int>(n, 1/((double)N));
 	dis = std::uniform_int_distribution<int>(1, n);
 }
 
 int Methods::C(int k, const bvec &S) {
 	int sum = 0;
-	for (int i = 1; i <= N - k; i++)
+	for (int i = 0; i < N - k; i++)
 		sum += (((S[i] xor S[i + k]) == 0) ? 1 : -1);
 	return sum;
 }
 
 int Methods::E(const bvec &S) {
 	int sum = 0;
-	for (int k = 1; k <= N - 1; k++) {
+	for (int k = 0; k < N - 1; k++) {
 		int tmp = C(k, S);
 		sum += tmp * tmp;
 	}
@@ -45,15 +45,18 @@ double Methods::F(const bvec &S) {
 	return N2 / ((double) 2.0 * E(S));
 }
 
-bvec Methods::random_vect(int len) {
+bvec Methods::random_bvec(int len) {
 	bvec x(len);
 	for (int i = 0; i < len; i++)
 		if (rand() % 2 == 0) x[i] = true;
 	return x;
 }
+bvec Methods::random_bvec() {
+	return random_bvec(N);
+}
 
 bvec Methods::one_plus_one(int iterN) {
-	bvec x = random_vect(N+1);
+	bvec x = random_bvec();
 	for (int i = 0; i < iterN; i++) {
 		bvec y = x;
 		sbm(y);
@@ -67,7 +70,7 @@ bvec Methods::mu_lambda(int mu, int lambda, int iterN) {
 
 	// population
 	std::vector<bvec> xs(mu);
-	for (int i = 0; i < mu; i++) xs[i] = random_vect(N);
+	for (int i = 0; i < mu; i++) xs[i] = random_bvec();
 
 	std::vector<bvec> ys(mu);
 
@@ -89,18 +92,18 @@ bvec Methods::mu_lambda(int mu, int lambda, int iterN) {
 }
 
 
-void Methods::sbmN(bvec& x, int l) {
+void Methods::sbm(bvec& x, int l) {
 	for(int i = 0; i < l; ++i) {
 		int index = dis(gen);
 		x[index] = x[index] xor 1;
 	}
 }
-void Methods::sbm(bvec& x) { sbmN(x, bin_dis(gen)); }
 
+void Methods::sbm(bvec& x) { sbm(x, bin_dis(gen)); }
 
 std::vector<bool> Methods::get_neighbor() {
 	std::vector<bool> neighbor = S;
-	sbmN(neighbor, 1);
+	sbm(neighbor, 1);
 	return neighbor;
 }
 
