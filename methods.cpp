@@ -3,6 +3,7 @@
 #include <array>
 #include <functional>
 #include <algorithm>
+#include <cmath>
 
 std::random_device Methods::rd;
 std::mt19937 Methods::gen(rd());
@@ -107,18 +108,32 @@ std::vector<bool> Methods::get_neighbor() {
 	return neighbor;
 }
 
-void Methods::simulating_annealing(const double t, int nb_iterations) {
+double Methods::compute_acceptance_probability(double fs, double fn, double t) {
+	return std::exp(-(fs - fn)/t); 
+}
+
+// we have to try different functions
+void Methods::cooling(double &t, int i) {
+	t = std::max(1.0, t - t/i);
+}
+
+void Methods::simulating_annealing(double t, int nb_iterations) {
 	std::uniform_real_distribution<> urd(0, 1);
-	double temperature = t;
-	sbm(S);
+	bvec s = random_bvec();
+	bvec opt(N);
 	for(int i = 0; i < nb_iterations; ++i) {
 		auto neighbor = get_neighbor();
-		double fs = F(S);
+		double fs = F(s);
 		double fn = F(neighbor);
 		if(fn > fs) {
-			S = neighbor;
+			s = neighbor;
+			if(F(opt) > fn)
+				opt = s;
 		} else {
-
+			double acc_prob = compute_acceptance_probability(fs, fn, t);
+			double prob = urd(gen);	
+			if(prob < acc_prob) s = neighbor;
 		}
+		cooling(t, i);
 	}
 }

@@ -22,10 +22,10 @@ public:
 	void sbm(bvec&, int);
 	void sbm(bvec&);
 
-	void simulating_annealing(const double t, int nb_iterations);
-	void init_simulating_annealing(const double t);
+	void simulating_annealing(double t, int nb_iterations);
 	std::vector<bool> get_neighbor();
-	void cooling();
+	void cooling(double&, int);
+	double compute_acceptance_probability(double, double, double);	
 
 private:
 	int N;
