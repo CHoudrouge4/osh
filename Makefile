@@ -3,7 +3,7 @@ CFLAGS = -g -Wall
 C = -c
 VERSION = -std=c++14
 OUTPUT = labs.exe
-SOURCES = main.cpp methods.cpp
+SOURCES = main.cpp labs.cpp methods.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 
 $(OUTPUT): $(OBJECTS)
