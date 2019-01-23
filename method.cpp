@@ -1,4 +1,4 @@
-#include "methods.h"
+#include "method.h"
 #include "labs.h"
 #include <cstdlib>
 #include <array>
@@ -6,16 +6,11 @@
 #include <algorithm>
 #include <cmath>
 
-std::random_device Methods::rd;
-std::mt19937 Methods::gen(rd());
 
-Methods::Methods (const Labs& l): labs(l) {
-	S = ::bvec(l.N, false);
-	bin_dis = std::binomial_distribution<int>(l.N, 1/((double)l.N));
-	dis = std::uniform_int_distribution<int>(1, l.N);
+Method::Method (const Labs& labs): Solver(labs) {
 }
 
-bvec Methods::one_plus_one(int iterN) {
+bvec Method::one_plus_one(int iterN) {
 	bvec x = labs.random_bvec();
 	for (int i = 0; i < iterN; i++) {
 		bvec y = x;
@@ -25,7 +20,7 @@ bvec Methods::one_plus_one(int iterN) {
 	return x;
 }
 
-bvec Methods::mu_lambda(int mu, int lambda, int iterN) {
+bvec Method::mu_lambda(int mu, int lambda, int iterN) {
 	std::uniform_int_distribution<> dis(0, mu-1);
 
 	// population
@@ -50,32 +45,22 @@ bvec Methods::mu_lambda(int mu, int lambda, int iterN) {
 						 [this](bvec a, bvec b) { return labs.F(a) > labs.F(b); });
 	return *maxValue;
 }
-
-void Methods::sbm(bvec& x, int l) {
-	for(int i = 0; i < l; ++i) {
-		int index = dis(gen);
-		x[index] = x[index] xor 1;
-	}
-}
-
-void Methods::sbm(bvec& x) { sbm(x, bin_dis(gen)); }
-
-std::vector<bool> Methods::get_neighbor() {
+std::vector<bool> Method::get_neighbor() {
 	std::vector<bool> neighbor = S;
 	sbm(neighbor, 1);
 	return neighbor;
 }
 
-double Methods::compute_acceptance_probability(double fs, double fn, double t) {
+double Method::compute_acceptance_probability(double fs, double fn, double t) {
 	return std::exp(-(fs - fn)/t);
 }
 
 // we have to try different functions
-void Methods::cooling(double &t, int i) {
+void Method::cooling(double &t, int i) {
 	t = std::max(1.0, t - t/i);
 }
 
-void Methods::simulating_annealing(double t, int nb_iterations) {
+void Method::simulating_annealing(double t, int nb_iterations) {
 	std::uniform_real_distribution<> urd(0, 1);
 	bvec s = labs.random_bvec();
 	bvec opt(labs.N);

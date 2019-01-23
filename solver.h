@@ -4,23 +4,14 @@
 #include <random>
 #include <iostream>
 
-class Methods {
-
+class Solver {
 public:
-	Methods(const Labs&);
-
-	bvec mu_lambda(int mu, int lambda, int iterN);
-	bvec one_plus_one(int iterN);
+	Solver(const Labs&);
 
 	void sbm(bvec&, int);
 	void sbm(bvec&);
 
-	void simulating_annealing(double t, int nb_iterations);
-	std::vector<bool> get_neighbor();
-	void cooling(double&, int);
-	double compute_acceptance_probability(double, double, double);
-
-private:
+protected:
 	Labs labs;
 
 	double opt;

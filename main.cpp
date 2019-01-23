@@ -1,11 +1,13 @@
 #include <iostream>
-#include "methods.h"
+#include "solver.h"
+#include "method.h"
 
 int main () {
 	Labs l(100);
-	Methods m(l);
 
 	std::cout << "Random: " << l.F(l.random_bvec()) << '\n';
+
+	Method m(l);
 
 	bvec res1 = m.one_plus_one(100);
 	std::cout << "1+1 F 10^2: " << l.F(res1) << '\n';
