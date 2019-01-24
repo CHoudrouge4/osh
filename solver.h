@@ -8,16 +8,20 @@ class Solver {
 public:
 	Solver(const Labs&);
 
-	void sbm(bvec&, int);
-	void sbm(bvec&);
+	Bvec getOptimal();
+
+	virtual void run(int iterNum) = 0; // better: time limit in ms
+	virtual void reset() = 0;
+
+	void sbm(Bvec&);
 
 protected:
 	Labs labs;
 
 	double opt;
-	bvec S;
+	Bvec opt_val;
 	std::binomial_distribution<int> bin_dis;
-	std::uniform_int_distribution<int> dis;
+	std::uniform_int_distribution<int> uni_dis;
 
 	// Random Generation
 	static std::random_device rd;

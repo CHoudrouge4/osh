@@ -1,5 +1,4 @@
 #include "solver.h"
-#include "labs.h"
 #include <cstdlib>
 #include <array>
 #include <functional>
@@ -9,17 +8,14 @@
 std::random_device Solver::rd;
 std::mt19937 Solver::gen(rd());
 
-Solver::Solver (const Labs& l): labs(l) {
-	S = ::bvec(l.N, false);
-	bin_dis = std::binomial_distribution<int>(l.N, 1/((double)l.N));
-	dis = std::uniform_int_distribution<int>(1, l.N);
+Solver::Solver (const Labs& l): labs(l), opt_val(l.N) {
+	bin_dis = std::binomial_distribution<int>(l.N-1, 1/((double)l.N));
+	uni_dis = std::uniform_int_distribution<int>(0, l.N-1);
 }
 
-void Solver::sbm(bvec& x, int l) {
-	for(int i = 0; i < l; ++i) {
-		int index = dis(gen);
-		x[index] = x[index] xor 1;
-	}
+void Solver::sbm(Bvec& x) {
+	int l = bin_dis(gen);
+	for(int i = 0; i < l; ++i) x.flipBit(uni_dis(gen));
 }
 
-void Solver::sbm(bvec& x) { sbm(x, bin_dis(gen)); }
+Bvec Solver::getOptimal() { return opt_val; }
