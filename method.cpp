@@ -7,6 +7,22 @@
 #include <cmath>
 
 
+OnePlusOne::OnePlusOne(const Labs& labs): Solver(labs), tmp_opt(labs.N) {}
+
+void OnePlusOne::run(int iterN) {
+	opt_val.randomise();
+	tmp_opt = opt_val;
+	for (int i = 0; i < iterN; i++) {
+		sbm(tmp_opt);
+		if(labs.F(tmp_opt) > labs.F(opt_val)) opt_val = tmp_opt;
+		else tmp_opt = opt_val;
+	}
+}
+
+void OnePlusOne::reset() { opt_val.clear(); }
+
+
+
 MuLambda::MuLambda (const Labs& labs, int mu, int lambda):
 	Solver(labs), mu(mu), lambda(lambda) {
 	uni_dis_mu = std::uniform_int_distribution<int>(0, mu-1);
@@ -41,18 +57,6 @@ void MuLambda::run(int iterN) {
 void MuLambda::reset() {
 	opt_val.clear();
 }
-
-//Method::Method (const Labs& labs): Solver(labs) {
-//}
-
-//Bvec Method::one_plus_one(int iterN) {
-//	current = labs.random_Bvec();
-//	for (int i = 0; i < iterN; i++) {
-//		temp = current;
-//		sbm(temp);
-//		if(labs.F(temp) > labs.F(current)) current = temp;
-//	}
-//}
 
 
 //std::vector<bool> Method::get_neighbor() {

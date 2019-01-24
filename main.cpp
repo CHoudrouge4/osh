@@ -9,19 +9,35 @@ int main () {
 	v.randomise();
 	std::cout << "Random: " << l.F(v) << '\n';
 
-	MuLambda m(l, 2, 5);
 
-	m.run(100);
-	std::cout << "1+1 F 100: " << l.F(m.getOptimal()) << '\n';
-	m.reset();
+	OnePlusOne s1(l);
 
-	m.run(1000);
-	std::cout << "1+1 F 500: " << l.F(m.getOptimal()) << '\n';
-	m.reset();
+	s1.run(100);
+	std::cout << "1+1 F 100: " << l.F(s1.getOptimal()) << '\n';
+	s1.reset();
 
-	m.run(1000);
-	std::cout << "1+1 F 1000: " << l.F(m.getOptimal()) << '\n';
-	m.reset();
+	s1.run(1000);
+	std::cout << "1+1 F 500: " << l.F(s1.getOptimal()) << '\n';
+	s1.reset();
+
+	s1.run(1000);
+	std::cout << "1+1 F 1000: " << l.F(s1.getOptimal()) << '\n';
+	s1.reset();
+
+
+	MuLambda s2(l, 2, 5);
+
+	s2.run(100);
+	std::cout << "mulambda F 100: " << l.F(s2.getOptimal()) << '\n';
+	s2.reset();
+
+	s2.run(1000);
+	std::cout << "mulambda F 500: " << l.F(s2.getOptimal()) << '\n';
+	s2.reset();
+
+	s2.run(1000);
+	std::cout << "mulambda F 1000: " << l.F(s2.getOptimal()) << '\n';
+	s2.reset();
 
 
 

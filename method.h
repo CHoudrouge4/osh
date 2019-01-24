@@ -5,9 +5,22 @@
 #include <random>
 #include <iostream>
 
-class MuLambda : public Solver {
 
+class OnePlusOne : public Solver {
 private:
+	// Temporary optimum, the other "1"
+	Bvec tmp_opt;
+
+public:
+	OnePlusOne(const Labs&);
+	void run(int iterNum);
+	void reset();
+};
+
+
+class MuLambda : public Solver {
+private:
+	// Algo parameters
 	const int mu;
 	const int lambda;
 	// should be also constant but I'm not a c++ wizard
@@ -23,7 +36,6 @@ private:
 
 public:
 	MuLambda(const Labs&, int mu, int lambda);
-
 	void run(int iterNum);
 	void reset();
 };
