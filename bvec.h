@@ -1,5 +1,9 @@
 #pragma once
+#include <cstdlib>
+#include <iostream>
+#include <array>
 #include <vector>
+
 
 class Bvec {
 private:
@@ -17,3 +21,5 @@ public:
 	void set(int i,bool v);
 	void flipBit(int i);
 };
+
+std::basic_ostream<char>& operator << (std::basic_ostream<char>& os, Bvec b);

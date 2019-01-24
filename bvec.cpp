@@ -1,18 +1,10 @@
 #include "bvec.h"
 #include <cstdlib>
+#include <iostream>
 #include <array>
 #include <vector>
 #include <random>
 
-std::ostream& operator << (std::ostream& os, const Bvec v) {
-	// TODO
-	//	os << "{ ";
-	//	for(int i = 1; i < v.size(); ++i) {
-	//		os << " " << v.get(i);
-	//	}
-	//	os << "}";
-	return os;
-}
 
 Bvec::Bvec(int n) {
 	b = std::vector<bool>(n);
@@ -31,3 +23,13 @@ void Bvec::clear() { for (uint i = 0; i < b.size(); i++) b[i] = false; }
 bool Bvec::get(int i) const { return b.at(i); }
 void Bvec::set(int i,bool f) { b[i] = f; }
 void Bvec::flipBit(int i) { b[i] = b[i] xor 1; }
+
+
+std::basic_ostream<char>& operator << (std::basic_ostream<char>& os, Bvec b) {
+	os << "[";
+	for(int i = 1; i < b.size(); ++i) {
+		os << " " << b.get(i);
+	}
+	os << "]";
+	return os;
+}
