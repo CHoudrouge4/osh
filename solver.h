@@ -6,7 +6,7 @@
 
 class Solver {
 public:
-	Solver(const Labs&);
+	explicit Solver(const Labs&);
 
 	Bvec getOptimal();
 
@@ -14,6 +14,7 @@ public:
 	virtual void reset() = 0;
 
 	void sbm(Bvec&);
+	void sbm(Bvec&, int);
 
 protected:
 	Labs labs;

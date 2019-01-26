@@ -40,19 +40,19 @@ public:
 	void reset();
 };
 
-//class Method : public Solver {
+class SA : public Solver {
 
-	//public:
-	//	Method(const Labs&);
-	//
-	//	Bvec one_plus_one(int iterN);
-	//	//	void simulating_annealing(double t, int nb_iterations);
-	//
-	//private:
-	//	Bvec current;
-	//	Bvec temp;
-	//
-	//	//	std::vector<bool> get_neighbor();
-	//	//	void cooling(double&, int);
-	//	//	double compute_acceptance_probability(double, double, double);
-	//};
+	public:
+	//	SA(const Labs& labs) : Solver(labs) {}
+		using Solver::Solver;
+		//Bvec one_plus_one(int iterN);
+		void simulating_annealing(double t, int nb_iterations);
+
+	private:
+		Bvec current;
+		Bvec temp;
+
+		Bvec get_neighbor();
+		void cooling(double&, int);
+		double compute_acceptance_probability(double, double, double);
+};

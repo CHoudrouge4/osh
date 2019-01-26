@@ -13,7 +13,7 @@ Bvec::Bvec(int n) {
 int Bvec::size() { return b.size(); }
 
 void Bvec::randomise() {
-	for (uint i = 0; i < b.size(); i++) if (rand() % 2 == 0) b[i] = true;
+	for (size_t i = 0; i < b.size(); i++) if (rand() % 2 == 0) b[i] = true;
 }
 
 void Bvec::clear() { for (uint i = 0; i < b.size(); i++) b[i] = false; }

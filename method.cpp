@@ -22,7 +22,6 @@ void OnePlusOne::run(int iterN) {
 void OnePlusOne::reset() { opt_val.clear(); }
 
 
-
 MuLambda::MuLambda (const Labs& labs, int mu, int lambda):
 	Solver(labs), mu(mu), lambda(lambda) {
 	uni_dis_mu = std::uniform_int_distribution<int>(0, mu-1);
@@ -58,39 +57,39 @@ void MuLambda::reset() {
 	opt_val.clear();
 }
 
+Bvec SA::get_neighbor() {
+	Bvec neighbor(labs.N);
+	sbm(neighbor, 1);
+	return neighbor;
+}
 
-//std::vector<bool> Method::get_neighbor() {
-//	std::vector<bool> neighbor = S;
-//	sbm(neighbor, 1);
-//	return neighbor;
-//}
-//
-//double Method::compute_acceptance_probability(double fs, double fn, double t) {
-//	return std::exp(-(fs - fn)/t);
-//}
-//
-//// we have to try different functions
-//void Method::cooling(double &t, int i) {
-//	t = std::max(1.0, t - t/i);
-//}
-//
-//void Method::simulating_annealing(double t, int nb_iterations) {
-//	std::uniform_real_distribution<> urd(0, 1);
-//	Bvec s = labs.random_Bvec();
-//	Bvec opt(labs.N);
-//	for(int i = 0; i < nb_iterations; ++i) {
-//		auto neighbor = get_neighbor();
-//		double fs = labs.F(s);
-//		double fn = labs.F(neighbor);
-//		if(fn > fs) {
-//			s = neighbor;
-//			if(labs.F(opt) > fn)
-//				opt = s;
-//		} else {
-//			double acc_prob = compute_acceptance_probability(fs, fn, t);
-//			double prob = urd(gen);
-//			if(prob < acc_prob) s = neighbor;
-//		}
-//		cooling(t, i);
-//	}
-//}
+double SA::compute_acceptance_probability(double fs, double fn, double t) {
+	return std::exp(-(fs - fn)/t);
+}
+
+// we have to try different functions
+void SA::cooling(double &t, int i) {
+	t = std::max(1.0, t - t/i);
+}
+
+void SA::simulating_annealing(double t, int nb_iterations) {
+	std::uniform_real_distribution<> urd(0, 1);
+	Bvec s(labs.N);
+	s.randomise();
+	Bvec opt(labs.N);
+	for(int i = 0; i < nb_iterations; ++i) {
+		auto neighbor = get_neighbor();
+		double fs = labs.F(s);
+		double fn = labs.F(neighbor);
+		if(fn > fs) {
+			s = neighbor;
+			if(labs.F(opt) > fn)
+				opt = s;
+		} else {
+			double acc_prob = compute_acceptance_probability(fs, fn, t);
+			double prob = urd(gen);
+			if(prob < acc_prob) s = neighbor;
+		}
+		cooling(t, i);
+	}
+}

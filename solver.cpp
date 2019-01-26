@@ -13,9 +13,13 @@ Solver::Solver (const Labs& l): labs(l), opt_val(l.N) {
 	uni_dis = std::uniform_int_distribution<int>(0, l.N-1);
 }
 
+void Solver::sbm(Bvec& x, int l) {
+	for(int i = 0; i < l; ++i) x.flipBit(uni_dis(gen));
+}
+
 void Solver::sbm(Bvec& x) {
 	int l = bin_dis(gen);
-	for(int i = 0; i < l; ++i) x.flipBit(uni_dis(gen));
+	sbm(x, l);
 }
 
 Bvec Solver::getOptimal() { return opt_val; }
