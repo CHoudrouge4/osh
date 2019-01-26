@@ -5,7 +5,7 @@
 #include <functional>
 #include <algorithm>
 #include <cmath>
-
+#include <cassert>
 
 OnePlusOne::OnePlusOne(const Labs& labs): Solver(labs), tmp_opt(labs.N) {}
 
@@ -57,6 +57,14 @@ void MuLambda::reset() {
 	opt_val.clear();
 }
 
+SA::SA(const Labs& labs, const double alpha, const double mu) :
+	Solver(labs), opt(labs.N) {
+	assert(alpha > 0 and alpha < 1);
+	assert(mu > 0 and  mu < 1);
+	this->alpha = alpha;
+	this->mu = mu;
+}
+
 Bvec SA::get_neighbor() {
 	Bvec neighbor(labs.N);
 	sbm(neighbor, 1);
@@ -68,28 +76,41 @@ double SA::compute_acceptance_probability(double fs, double fn, double t) {
 }
 
 // we have to try different functions
-void SA::cooling(double &t, int i) {
-	t = std::max(1.0, t - t/i);
+void SA::cooling(char option, double &t, int i) {
+	switch(option) {
+		case 'e': exp_cooling(t, i);
+		case 'l': linear_cooling(t, i);
+	}
 }
 
-void SA::simulating_annealing(double t, int nb_iterations) {
+void SA::exp_cooling(double &t, int i) {
+	t = t * std::pow(alpha, i);
+}
+
+void SA::linear_cooling(double &t, int i) {
+	t = t - mu * i;
+}
+
+void SA::simulating_annealing(double t, int nb_iterations, char option) {
 	std::uniform_real_distribution<> urd(0, 1);
 	Bvec s(labs.N);
 	s.randomise();
-	Bvec opt(labs.N);
+	opt = Bvec(labs.N);
 	for(int i = 0; i < nb_iterations; ++i) {
 		auto neighbor = get_neighbor();
 		double fs = labs.F(s);
 		double fn = labs.F(neighbor);
 		if(fn > fs) {
 			s = neighbor;
-			if(labs.F(opt) > fn)
+			if(labs.F(opt) < fn)
 				opt = s;
 		} else {
 			double acc_prob = compute_acceptance_probability(fs, fn, t);
 			double prob = urd(gen);
 			if(prob < acc_prob) s = neighbor;
 		}
-		cooling(t, i);
+		cooling(option, t, i);
 	}
 }
+
+

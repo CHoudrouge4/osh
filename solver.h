@@ -6,7 +6,7 @@
 
 class Solver {
 public:
-	explicit Solver(const Labs&);
+	Solver(const Labs&);
 
 	Bvec getOptimal();
 

@@ -17,7 +17,6 @@ public:
 	void reset();
 };
 
-
 class MuLambda : public Solver {
 private:
 	// Algo parameters
@@ -27,6 +26,10 @@ private:
 	// and I get really sad at how gcc shows me errors;
 	// I don't even want to read that much text, sorry
 	// ghc <3
+	//
+	//  "Happiness is Programming in C++"
+	//							Hussein Houdrouge - 2016
+	//
 	std::uniform_int_distribution<int> uni_dis_mu;
 
 	// our "main" population
@@ -43,16 +46,22 @@ public:
 class SA : public Solver {
 
 	public:
-	//	SA(const Labs& labs) : Solver(labs) {}
-		using Solver::Solver;
-		//Bvec one_plus_one(int iterN);
-		void simulating_annealing(double t, int nb_iterations);
+		//using Solver::Solver;
+		SA(const Labs&, const double alpha, const double mu);
+		// options: l for linear and e for exponention.
+		void simulating_annealing(double t, int nb_iterations, char option);
 
 	private:
-		Bvec current;
-		Bvec temp;
+		Bvec opt;
+//		Bvec temp;
+
+		double alpha; // coolint exponentiatl constant
+		double mu;    // coolint linear constant
+		double t0;    // initial temprature
 
 		Bvec get_neighbor();
-		void cooling(double&, int);
+		void cooling(char, double&, int);
 		double compute_acceptance_probability(double, double, double);
+		void exp_cooling(double&, int);
+		void linear_cooling(double&, int);
 };
