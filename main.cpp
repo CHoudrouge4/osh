@@ -55,14 +55,17 @@ int main () {
 
 	s2.run(100);
 	cout << "mulambda F 100: " << l.F(s2.getOptimal()) << '\n';
+	plots.push_back(s2.getStats());
 	s2.reset();
 
 	s2.run(1000);
 	cout << "mulambda F 500: " << l.F(s2.getOptimal()) << '\n';
+	plots.push_back(s2.getStats());
 	s2.reset();
 
 	s2.run(1000);
 	cout << "mulambda F 1000: " << l.F(s2.getOptimal()) << '\n';
+	plots.push_back(s2.getStats());
 	s2.reset();
 
 	dumpStats(plots);

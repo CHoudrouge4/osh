@@ -51,6 +51,7 @@ void MuLambda::run(int iterN) {
 
 		for (int j = 0; j < mu; j++) xs[j] = ys[j];
 		opt_val = xs[0];
+		opt = labs.F(opt_val);
 		recordCurrent(i);
 	}
 }
