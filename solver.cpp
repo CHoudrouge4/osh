@@ -3,7 +3,11 @@
 #include <array>
 #include <functional>
 #include <algorithm>
+#include <tuple>
 #include <cmath>
+#include <chrono>
+#include <ratio>
+#include <thread>
 
 std::random_device Solver::rd;
 std::mt19937 Solver::gen(rd());
@@ -23,3 +27,22 @@ void Solver::sbm(Bvec& x) {
 }
 
 Bvec Solver::getOptimal() { return opt_val; }
+
+long long getTimeMs() {
+	uint64_t us =
+		std::chrono::duration_cast<std::chrono::microseconds>
+		(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+	return us;
+}
+
+void Solver::recordBegin() {
+	stats.clear();
+	last_run_start = getTimeMs();
+}
+
+void Solver::recordCurrent(int iterNum) {
+	long long cur_time = getTimeMs() - last_run_start;
+	stats.push_back(std::make_tuple(cur_time, iterNum, opt));
+}
+
+std::vector<statItem>Solver::getStats() { return stats; }

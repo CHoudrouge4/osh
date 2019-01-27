@@ -12,14 +12,20 @@ OnePlusOne::OnePlusOne(const Labs& labs): Solver(labs), tmp_opt(labs.N) {}
 void OnePlusOne::run(int iterN) {
 	opt_val.randomise();
 	tmp_opt = opt_val;
+
+	recordBegin();
 	for (int i = 0; i < iterN; i++) {
 		sbm(tmp_opt);
-		if(labs.F(tmp_opt) > labs.F(opt_val)) opt_val = tmp_opt;
+		if(labs.F(tmp_opt) > labs.F(opt_val)) {
+			opt_val = tmp_opt;
+			opt = labs.F(opt_val);
+		}
 		else tmp_opt = opt_val;
+		recordCurrent(i);
 	}
 }
 
-void OnePlusOne::reset() { opt_val.clear(); }
+void OnePlusOne::reset() { opt_val.clear(); opt = labs.F(opt_val); }
 
 
 MuLambda::MuLambda (const Labs& labs, int mu, int lambda):
@@ -30,9 +36,9 @@ MuLambda::MuLambda (const Labs& labs, int mu, int lambda):
 }
 
 void MuLambda::run(int iterN) {
-
 	for (int i = 0; i < mu; i++) { xs[i].randomise(); }
 
+	recordBegin();
 	for (int i = 0; i < iterN; i++) {
 		// variation
 		for (int j = 0; j < lambda; j++) {
@@ -44,13 +50,9 @@ void MuLambda::run(int iterN) {
 				  [this](Bvec a, Bvec b) { return labs.F(a) > labs.F(b); });
 
 		for (int j = 0; j < mu; j++) xs[j] = ys[j];
+		opt_val = xs[0];
+		recordCurrent(i);
 	}
-
-	// We could do it in the xs[j] = ys[j] loop btw
-	auto maxValue =
-		std::max_element(xs.begin(), xs.end(),
-						 [this](Bvec a, Bvec b) { return labs.F(a) < labs.F(b); });
-	opt_val = *maxValue;
 }
 
 void MuLambda::reset() {
@@ -112,5 +114,3 @@ void SA::simulating_annealing(double t, int nb_iterations, char option) {
 		cooling(option, t, i);
 	}
 }
-
-
