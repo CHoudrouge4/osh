@@ -32,10 +32,8 @@ private:
 	//
 	std::uniform_int_distribution<int> uni_dis_mu;
 
-	// our "main" population
-	std::vector<Bvec> xs;
-	// "temporary" population
-	std::vector<Bvec> ys;
+	// population, consists of mu + lambda elements
+	std::vector<Bvec> ppl;
 
 public:
 	MuLambda(const Labs&, int mu, int lambda);

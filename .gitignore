@@ -36,3 +36,4 @@
 # Data
 plotData/*.png
 plotData/*.csv
+plotData/*.svg

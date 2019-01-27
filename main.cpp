@@ -7,12 +7,12 @@
 using namespace std;
 
 // Move it elsewhere
-void dumpStats(vector<vector<statItem>> plots) {
+void dumpStats(vector<vector<statItem>> plots, string prefix) {
 	for (uint i = 0; i < plots.size(); i++) {
 		ofstream outS;
 
 		char buffer[50];
-		sprintf(buffer, "./plotData/%d.csv", i);
+		sprintf(buffer, "./plotData/%s%d.csv", prefix.c_str(), i);
 		outS.open(buffer);
 
 		auto stats = plots[i];
@@ -24,7 +24,33 @@ void dumpStats(vector<vector<statItem>> plots) {
 	}
 }
 
-int main () {
+void compareMuLambdas() {
+	Labs l(50);
+
+	vector<vector<statItem>> plots;
+
+	vector<tuple<MuLambda, int>> configs =
+		{ make_tuple(MuLambda(l, 2, 5), 300)
+		, make_tuple(MuLambda(l, 2, 10), 300)
+		, make_tuple(MuLambda(l, 5, 10), 300)
+		, make_tuple(MuLambda(l, 10, 10), 300)
+		, make_tuple(MuLambda(l, 20, 20), 300)
+		, make_tuple(MuLambda(l, 30, 30), 300)
+		};
+
+	for (uint i = 0; i < configs.size(); i++) {
+		MuLambda s = get<0>(configs[i]);
+		int iters = get<1>(configs[i]);
+
+		s.run(iters);
+		cout << "mulambda " << i << ": " << l.F(s.getOptimal()) << '\n';
+		plots.push_back(s.getStats());
+		s.reset();
+	}
+	dumpStats(plots,"mulambda");
+}
+
+void simpleDemo() {
 	Labs l(50);
 
 	Bvec v(50);
@@ -68,7 +94,12 @@ int main () {
 	plots.push_back(s2.getStats());
 	s2.reset();
 
-	dumpStats(plots);
+	dumpStats(plots,"main");
+}
+
+int main () {
+	//simpleDemo();
+	compareMuLambdas();
 
 	return 0;
 }

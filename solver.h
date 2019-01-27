@@ -7,8 +7,7 @@
 
 using statItem = std::tuple<long long, int, double>;
 
-class Solver {
-public:
+struct Solver {
 	Solver(const Labs&);
 
 	Bvec getOptimal();

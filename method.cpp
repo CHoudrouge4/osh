@@ -7,6 +7,10 @@
 #include <cmath>
 #include <cassert>
 
+
+// 1 + 1
+
+
 OnePlusOne::OnePlusOne(const Labs& labs): Solver(labs), tmp_opt(labs.N) {}
 
 void OnePlusOne::run(int iterN) {
@@ -28,29 +32,30 @@ void OnePlusOne::run(int iterN) {
 void OnePlusOne::reset() { opt_val.clear(); opt = labs.F(opt_val); }
 
 
+// Mu Lambda
+
+
 MuLambda::MuLambda (const Labs& labs, int mu, int lambda):
 	Solver(labs), mu(mu), lambda(lambda) {
 	uni_dis_mu = std::uniform_int_distribution<int>(0, mu-1);
-	xs = std::vector<Bvec>(mu, Bvec(labs.N));
-	ys = std::vector<Bvec>(lambda, Bvec(labs.N));
+	ppl = std::vector<Bvec>(mu+lambda, Bvec(labs.N));
 }
 
 void MuLambda::run(int iterN) {
-	for (int i = 0; i < mu; i++) { xs[i].randomise(); }
+	for (int i = 0; i < mu; i++) { ppl[i].randomise(); }
 
 	recordBegin();
 	for (int i = 0; i < iterN; i++) {
 		// variation
 		for (int j = 0; j < lambda; j++) {
-			ys[j] = xs[uni_dis_mu(gen)];
-			sbm(ys[j]);
+			ppl[mu+j] = ppl[uni_dis_mu(gen)];
+			sbm(ppl[mu+j]);
 		}
 		// selection (sort descending)
-		std::sort(ys.begin(), ys.end(),
+		std::sort(ppl.begin(), ppl.end(),
 				  [this](Bvec a, Bvec b) { return labs.F(a) > labs.F(b); });
 
-		for (int j = 0; j < mu; j++) xs[j] = ys[j];
-		opt_val = xs[0];
+		opt_val = ppl[0];
 		opt = labs.F(opt_val);
 		recordCurrent(i);
 	}
@@ -59,6 +64,10 @@ void MuLambda::run(int iterN) {
 void MuLambda::reset() {
 	opt_val.clear();
 }
+
+
+// Simulated annealing
+
 
 SA::SA(const Labs& labs, const double alpha, const double mu) :
 	Solver(labs), opt(labs.N) {
