@@ -7,7 +7,6 @@
 
 
 class OnePlusOne : public Solver {
-private:
 	// Temporary optimum, the other "1"
 	Bvec tmp_opt;
 
@@ -18,10 +17,10 @@ public:
 };
 
 class MuLambda : public Solver {
-private:
 	// Algo parameters
 	const int mu;
 	const int lambda;
+	const int crossoverP;
 	// should be also constant but I'm not a c++ wizard
 	// and I get really sad at how gcc shows me errors;
 	// I don't even want to read that much text, sorry
@@ -36,7 +35,7 @@ private:
 	std::vector<Bvec> ppl;
 
 public:
-	MuLambda(const Labs&, int mu, int lambda);
+	MuLambda(const Labs&, int mu, int lambda, double crossoverP);
 	void run(int iterNum);
 	void reset();
 };

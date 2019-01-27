@@ -35,8 +35,8 @@ void OnePlusOne::reset() { opt_val.clear(); opt = labs.F(opt_val); }
 // Mu Lambda
 
 
-MuLambda::MuLambda (const Labs& labs, int mu, int lambda):
-	Solver(labs), mu(mu), lambda(lambda) {
+MuLambda::MuLambda (const Labs& labs, int mu, int lambda, double crossoverP):
+	Solver(labs), mu(mu), lambda(lambda), crossoverP(crossoverP) {
 	uni_dis_mu = std::uniform_int_distribution<int>(0, mu-1);
 	ppl = std::vector<Bvec>(mu+lambda, Bvec(labs.N));
 }
@@ -48,8 +48,13 @@ void MuLambda::run(int iterN) {
 	for (int i = 0; i < iterN; i++) {
 		// variation
 		for (int j = 0; j < lambda; j++) {
-			ppl[mu+j] = ppl[uni_dis_mu(gen)];
-			sbm(ppl[mu+j]);
+			if (uni_dis_one(gen) < crossoverP) {
+				ppl[mu+j] = ppl[uni_dis_mu(gen)];
+				uni_crossover(ppl[mu+j], ppl[uni_dis_mu(gen)]);
+			} else {
+				ppl[mu+j] = ppl[uni_dis_mu(gen)];
+				sbm(ppl[mu+j]);
+			}
 		}
 		// selection (sort descending)
 		std::sort(ppl.begin(), ppl.end(),

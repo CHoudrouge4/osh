@@ -30,12 +30,10 @@ void compareMuLambdas() {
 	vector<vector<statItem>> plots;
 
 	vector<tuple<MuLambda, int>> configs =
-		{ make_tuple(MuLambda(l, 2, 5), 300)
-		, make_tuple(MuLambda(l, 2, 10), 300)
-		, make_tuple(MuLambda(l, 5, 10), 300)
-		, make_tuple(MuLambda(l, 10, 10), 300)
-		, make_tuple(MuLambda(l, 20, 20), 300)
-		, make_tuple(MuLambda(l, 30, 30), 300)
+		{ make_tuple(MuLambda(l, 2, 5, 0.3), 300)
+		, make_tuple(MuLambda(l, 5, 40, 0.3), 300)
+		, make_tuple(MuLambda(l, 20, 20, 0.3), 300)
+		, make_tuple(MuLambda(l, 30, 30, 0.3), 300)
 		};
 
 	for (uint i = 0; i < configs.size(); i++) {
@@ -77,7 +75,7 @@ void simpleDemo() {
 	s1.reset();
 
 
-	MuLambda s2(l, 2, 5);
+	MuLambda s2(l, 2, 5, 0);
 
 	s2.run(100);
 	cout << "mulambda F 100: " << l.F(s2.getOptimal()) << '\n';
