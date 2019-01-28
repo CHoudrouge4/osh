@@ -5,7 +5,7 @@
 #include <random>
 #include <iostream>
 
-using statItem = std::tuple<long long, int, double>;
+using statItem = std::tuple<int64_t, int, double>;
 
 struct Solver {
 	Solver(const Labs&);
@@ -25,6 +25,8 @@ struct Solver {
 	void recordCurrent(int iterNum);
 	// Obtain the statistics
 	std::vector<statItem> getStats();
+
+	void print_sequence() const;
 
 protected:
 	Labs labs;

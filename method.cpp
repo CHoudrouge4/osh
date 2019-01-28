@@ -70,22 +70,19 @@ void MuLambda::reset() {
 	opt_val.clear();
 }
 
-
 // Simulated annealing
 
-
 SA::SA(const Labs& labs, const double alpha, const double mu) :
-	Solver(labs), opt(labs.N) {
+	Solver(labs) {
 	assert(alpha > 0 and alpha < 1);
 	assert(mu > 0 and  mu < 1);
 	this->alpha = alpha;
 	this->mu = mu;
 }
 
-Bvec SA::get_neighbor() {
-	Bvec neighbor(labs.N);
-	sbm(neighbor, 1);
-	return neighbor;
+Bvec SA::get_neighbor(Bvec s) {
+	sbm(s, 1);
+	return s;
 }
 
 double SA::compute_acceptance_probability(double fs, double fn, double t) {
@@ -111,16 +108,19 @@ void SA::linear_cooling(double &t, int i) {
 void SA::simulating_annealing(double t, int nb_iterations, char option) {
 	std::uniform_real_distribution<> urd(0, 1);
 	Bvec s(labs.N);
-	s.randomise();
-	opt = Bvec(labs.N);
+	sbm(s, labs.N);
+	std::cout << "what is s: " << s << '\n';
+	opt = labs.F(opt_val);
 	for(int i = 0; i < nb_iterations; ++i) {
-		auto neighbor = get_neighbor();
+		auto neighbor = get_neighbor(s);
 		double fs = labs.F(s);
 		double fn = labs.F(neighbor);
 		if(fn > fs) {
 			s = neighbor;
-			if(labs.F(opt) < fn)
-				opt = s;
+			if(opt < fn) {
+				opt_val = s;
+				opt = fn;
+			}
 		} else {
 			double acc_prob = compute_acceptance_probability(fs, fn, t);
 			double prob = urd(gen);
@@ -129,3 +129,12 @@ void SA::simulating_annealing(double t, int nb_iterations, char option) {
 		cooling(option, t, i);
 	}
 }
+
+void SA::reset() { opt_val.clear();}
+
+void SA::run(int iterNum) {
+	simulating_annealing(t0, iterNum, option);
+}
+
+void SA::set_cooling_option(char cooling_option) { option = cooling_option; }
+void SA::set_initial_tempreature(double init_temp) { t0 = init_temp; }

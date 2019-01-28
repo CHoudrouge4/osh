@@ -4,6 +4,7 @@
 #include "solver.h"
 #include "method.h"
 
+// this is very sad!!
 using namespace std;
 
 // Move it elsewhere
@@ -92,12 +93,23 @@ void simpleDemo() {
 	plots.push_back(s2.getStats());
 	s2.reset();
 
+
+	SA s3(l, 0.75, 0.5);
+
+	s3.run(100);
+	s3.set_initial_tempreature(10000);
+	s3.set_cooling_option('e');
+	std::cout << "SA F 100: " << l.F(s3.getOptimal()) << '\n';
+	s3.print_sequence();
+	s3.reset();
+
 	dumpStats(plots,"main");
 }
 
 int main () {
-	//simpleDemo();
-	compareMuLambdas();
+	simpleDemo();
+	//compareMuL
+	//ambdas();
 
 	return 0;
 }

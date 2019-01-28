@@ -43,20 +43,25 @@ public:
 class SA : public Solver {
 
 	public:
+
+		void run(int iterNum);
+		void reset();
+		void set_cooling_option(char cooling_option);
+		void set_initial_tempreature(double init_temp);
 		//using Solver::Solver;
 		SA(const Labs&, const double alpha, const double mu);
 		// options: l for linear and e for exponention.
-		void simulating_annealing(double t, int nb_iterations, char option);
-
 	private:
-		Bvec opt;
-//		Bvec temp;
+		//Bvec opt_sec;
 
 		double alpha; // coolint exponentiatl constant
 		double mu;    // coolint linear constant
-		double t0;    // initial temprature
+		double t0 = 1000;    // initial temprature
+		char option = 'l';
 
-		Bvec get_neighbor();
+		void simulating_annealing(double t, int nb_iterations, char option);
+
+		Bvec get_neighbor(Bvec s);
 		void cooling(char, double&, int);
 		double compute_acceptance_probability(double, double, double);
 		void exp_cooling(double&, int);
