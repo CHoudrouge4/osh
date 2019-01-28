@@ -107,10 +107,12 @@ void SA::linear_cooling(double &t, int i) {
 
 void SA::simulating_annealing(double t, int nb_iterations, char option) {
 	std::uniform_real_distribution<> urd(0, 1);
+
 	Bvec s(labs.N);
 	sbm(s, labs.N);
 	std::cout << "what is s: " << s << '\n';
 	opt = labs.F(opt_val);
+	recordBegin();
 	for(int i = 0; i < nb_iterations; ++i) {
 		auto neighbor = get_neighbor(s);
 		double fs = labs.F(s);
@@ -127,6 +129,7 @@ void SA::simulating_annealing(double t, int nb_iterations, char option) {
 			if(prob < acc_prob) s = neighbor;
 		}
 		cooling(option, t, i);
+		recordCurrent(i);
 	}
 }
 

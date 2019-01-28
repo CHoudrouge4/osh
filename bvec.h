@@ -11,6 +11,7 @@ private:
 
 public:
 	Bvec(int n);
+	Bvec(std::vector<bool> &v);
 
 	int size();
 	void randomise();
@@ -20,6 +21,7 @@ public:
 	bool get(int i) const;
 	void set(int i,bool v);
 	void flipBit(int i);
+	void print_encoding() const;
 };
 
 std::basic_ostream<char>& operator << (std::basic_ostream<char>& os, Bvec b);

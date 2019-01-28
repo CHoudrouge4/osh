@@ -19,7 +19,7 @@ void dumpStats(vector<vector<statItem>> plots, string prefix) {
 		auto stats = plots[i];
 		for (uint j = 0; j < stats.size(); j++) {
 			auto val = stats[j];
-			outS << get<0>(val) << ", " << get<1>(val) << ", " << get<2>(val) << "\n";
+			outS << get<0>(val) << "  " << get<1>(val) << "  " << get<2>(val) << "\n";
 		}
 		outS.close();
 	}
@@ -50,9 +50,9 @@ void compareMuLambdas() {
 }
 
 void simpleDemo() {
-	Labs l(50);
+	Labs l(5);
 
-	Bvec v(50);
+	Bvec v(5);
 	v.randomise();
 	cout << "Random: " << l.F(v) << " at " << v << '\n';
 
@@ -94,22 +94,68 @@ void simpleDemo() {
 	s2.reset();
 
 
-	SA s3(l, 0.75, 0.5);
-
-	s3.run(100);
-	s3.set_initial_tempreature(10000);
-	s3.set_cooling_option('e');
-	std::cout << "SA F 100: " << l.F(s3.getOptimal()) << '\n';
-	s3.print_sequence();
-	s3.reset();
+//	SA s3(l, 0.75, 0.5);
+//	s3.run(100);
+//	s3.set_initial_tempreature(10000);
+//	s3.set_cooling_option('e');
+//	std::cout << "SA F 100: " << l.F(s3.getOptimal()) << '\n';
+//	s3.print_sequence();
+//	s3.reset();
 
 	dumpStats(plots,"main");
 }
 
-int main () {
-	simpleDemo();
-	//compareMuL
-	//ambdas();
+void testing_SA() {
+	Labs l(5);
 
+	Bvec v(5);
+	v.randomise();
+	cout << "Random: " << l.F(v) << " at " << v << '\n';
+
+	vector<vector<statItem>> plots;
+//-------------------------------------------------------
+	double alpha = 0.20;
+	double mu    = 0.10;
+	double t0    = 10000;
+
+	SA s3(l, alpha, mu);
+
+	s3.run(100);
+	s3.set_initial_tempreature(t0);
+	s3.set_cooling_option('l');
+	std::cout << "SA F 100: " << l.F(s3.getOptimal()) << '\n';
+	s3.print_sequence();
+	s3.reset();
+
+	s3.run(500);
+//	s3.set_initial_tempreature(t0);
+//	s3.set_cooling_option('e');
+	std::cout << "SA F 500: " << l.F(s3.getOptimal()) << '\n';
+	s3.print_sequence();
+	s3.reset();
+
+	s3.run(1000);
+//	s3.set_initial_tempreature(t0);
+//	s3.set_cooling_option('e');
+	std::cout << "SA F 1000: " << l.F(s3.getOptimal()) << '\n';
+	s3.print_sequence();
+	s3.reset();
+
+	dumpStats(plots,"sa_stat");
+
+}
+
+int main () {
+	//simpleDemo();
+	//compareMuLambdas();
+	//ambdas();
+	//testing_SA();
+
+
+//	Labs l(5);
+//	std::vector<bool> v = {0, 0, 0, 1, 0, 1};
+//	Bvec b(v);
+//	b.print_encoding();
+//	std::cout << l.F(b) << '\n';
 	return 0;
 }

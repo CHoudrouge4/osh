@@ -54,5 +54,5 @@ void Solver::recordCurrent(int iterNum) {
 std::vector<statItem>Solver::getStats() { return stats; }
 
 void Solver::print_sequence() const {
-	std::cout << "The optimal sequence is: " << opt_val << '\n';
+	std::cout << "Optimal Sequence is: " << opt_val << '\n';
 }
