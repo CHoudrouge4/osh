@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -O2
 C = -c
 VERSION = -std=c++11
 OUTPUT = labs.exe

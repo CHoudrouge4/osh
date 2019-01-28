@@ -28,6 +28,10 @@ bool Bvec::get(int i) const { return b.at(i); }
 void Bvec::set(int i,bool f) { b[i] = f; }
 void Bvec::flipBit(int i) { b[i] = b[i] xor 1; }
 
+bool Bvec::operator==(const Bvec &other) const {
+	return (this->b) == (other.b);
+}
+
 void Bvec::print_encoding() const {
 	if(b.size() == 0) return;
 	int count = 1;

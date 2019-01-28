@@ -25,16 +25,16 @@ void dumpStats(vector<vector<statItem>> plots, string prefix) {
 	}
 }
 
-void compareMuLambdas() {
-	Labs l(50);
+void compareMuLambdas(int n) {
+	Labs l(n);
+	cout << "L = " << n << ", F = " << l.optF << "\n";
 
 	vector<vector<statItem>> plots;
 
 	vector<tuple<MuLambda, int>> configs =
-		{ make_tuple(MuLambda(l, 2, 5, 0.3), 300)
-		, make_tuple(MuLambda(l, 5, 40, 0.3), 300)
-		, make_tuple(MuLambda(l, 20, 20, 0.3), 300)
-		, make_tuple(MuLambda(l, 30, 30, 0.3), 300)
+		{ make_tuple(MuLambda(l, 50, 100, 0.9), 10000)
+		, make_tuple(MuLambda(l, 50, 100, 0.95), 10000)
+		, make_tuple(MuLambda(l, 100, 200, 0.99), 10000)
 		};
 
 	for (uint i = 0; i < configs.size(); i++) {
@@ -147,11 +147,9 @@ void testing_SA() {
 }
 
 int main () {
-	Labs l(34);
-	cout << "Optimal: " << l.optVec << " " << l.optE << " " << l.optF << "\n";
 
 	//simpleDemo();
-	//compareMuLambdas();
+	compareMuLambdas(15);
 	//ambdas();
 	//testing_SA();
 

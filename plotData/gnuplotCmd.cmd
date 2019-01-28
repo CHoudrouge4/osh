@@ -15,7 +15,7 @@ set output 'mulambdas.png'
 plot \
   'mulambda0.csv' using 2:3 with lines title 'ml 1 ', \
   'mulambda1.csv' using 2:3 with lines title 'ml 2 ', \
-  'mulambda2.csv' using 2:3 with lines title 'ml 3 ',\
-  'mulambda3.csv' using 2:3 with lines title 'ml 4 ', 
+  'mulambda2.csv' using 2:3 with lines title 'ml 3 ', \
+  'mulambda3.csv' using 2:3 with lines title 'ml 4 ',
 #  'mulambda4.csv' using 2:3 with lines title 'ml 5 ', \
 #  'mulambda5.csv' using 2:3 with lines title 'ml 6 '

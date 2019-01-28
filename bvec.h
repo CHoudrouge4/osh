@@ -5,11 +5,9 @@
 #include <vector>
 
 
-class Bvec {
-private:
+struct Bvec {
 	std::vector<bool> b;
 
-public:
 	Bvec(int n);
 	Bvec(std::vector<bool> &v);
 
@@ -22,6 +20,17 @@ public:
 	void set(int i,bool v);
 	void flipBit(int i);
 	void print_encoding() const;
+
+	bool operator==(const Bvec &other) const;
 };
 
 std::basic_ostream<char>& operator << (std::basic_ostream<char>& os, Bvec b);
+
+namespace std {
+	template <>
+	struct hash<Bvec> {
+		size_t operator()(const Bvec& v) const {
+			return hash<vector<bool>>()(v.b);
+		}
+	};
+}

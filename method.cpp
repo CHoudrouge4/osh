@@ -26,6 +26,7 @@ void OnePlusOne::run(int iterN) {
 		}
 		else tmp_opt = opt_val;
 		recordCurrent(i);
+		if (opt == labs.optF) break;
 	}
 }
 
@@ -63,6 +64,7 @@ void MuLambda::run(int iterN) {
 		opt_val = ppl[0];
 		opt = labs.F(opt_val);
 		recordCurrent(i);
+		if (opt == labs.optF) break;
 	}
 }
 

@@ -4,6 +4,7 @@
 #include <array>
 #include <functional>
 #include <iostream>
+#include <unordered_map>
 #include <tuple>
 #include <algorithm>
 #include <cmath>
@@ -36,4 +37,13 @@ Labs::Labs (int n)
 
 int Labs::E(const Bvec &S) { return energy(N, S); }
 
-double Labs::F(const Bvec &S) { return merit(N, S); }
+double Labs::F(const Bvec &S) {
+	std::unordered_map<Bvec,double>::const_iterator res = memo.find(S);
+	if (res == memo.end()) {
+		double m = merit(N, S);
+		memo.insert(std::make_pair(S,m));
+		return m;
+	} else {
+		return res->second;
+	}
+}
