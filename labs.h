@@ -4,13 +4,14 @@
 #include <random>
 #include <iostream>
 
-class Labs {
-public:
+// TODO add memoization
+struct Labs {
 	const int N;
-	const int N2;
+	const Bvec optVec;
+	const int optE;
+	const double optF;
 
 	Labs(int);
-	int C(int, const Bvec&);
 	int E(const Bvec&);
 	double F(const Bvec&);
 };

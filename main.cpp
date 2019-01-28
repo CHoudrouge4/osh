@@ -55,6 +55,7 @@ void simpleDemo() {
 	Bvec v(5);
 	v.randomise();
 	cout << "Random: " << l.F(v) << " at " << v << '\n';
+	cout << "Its optimal: " << l.optF << " with value: " << l.F(l.optF) << '\n';
 
 	vector<vector<statItem>> plots;
 
@@ -146,6 +147,9 @@ void testing_SA() {
 }
 
 int main () {
+	Labs l(34);
+	cout << "Optimal: " << l.optVec << " " << l.optE << " " << l.optF << "\n";
+
 	//simpleDemo();
 	//compareMuLambdas();
 	//ambdas();

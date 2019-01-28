@@ -46,9 +46,9 @@ void Bvec::print_encoding() const {
 
 std::basic_ostream<char>& operator << (std::basic_ostream<char>& os, Bvec b) {
 	os << "[";
-	for(int i = 0; i < b.size(); ++i) {
+	for(int i = 0; i < b.size(); i++) {
 		os << " " << b.get(i);
 	}
-	os << "]";
+	os << " ]";
 	return os;
 }
