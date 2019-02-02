@@ -5,15 +5,16 @@
 #include <random>
 #include <iostream>
 
-using statItem = std::tuple<int64_t, int, double>;
+using statItem = std::tuple<int64_t, long, double>;
 
 struct Solver {
 	Solver(const Labs&);
 
 	Bvec getOptimal();
 
-	virtual void run(int iterNum) = 0; // better: time limit in ms
-	virtual void reset() = 0;
+	// Accepts time in ms
+	virtual void run(long long timeout) = 0;
+	virtual void reset();
 
 	void sbm(Bvec&);
 	void sbm(Bvec&, int);
@@ -22,7 +23,7 @@ struct Solver {
 	// Re-initialise stats variables
 	void recordBegin();
 	// Record current stats
-	void recordCurrent(int iterNum);
+	void recordCurrent();
 	// Obtain the statistics
 	std::vector<statItem> getStats();
 
@@ -43,6 +44,9 @@ protected:
 
 	// The time last start was began on.
 	double last_run_start;
+	// Getting current runningtime
+	long long getRunningTimeMcs();
+	long long getRunningTimeMs();
 	// Statistics. Each element is (time,iteration,value)
 	std::vector<statItem> stats;
 };

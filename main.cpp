@@ -32,9 +32,10 @@ void compareMuLambdas(int n) {
 	vector<vector<statItem>> plots;
 
 	vector<tuple<MuLambda, int>> configs =
-		{ make_tuple(MuLambda(l, 50, 100, 0.9), 10000)
-		, make_tuple(MuLambda(l, 50, 100, 0.95), 10000)
-		, make_tuple(MuLambda(l, 100, 200, 0.99), 10000)
+		{ make_tuple(MuLambda(l, 50, 100, 0.6),   20000)
+		, make_tuple(MuLambda(l, 50, 100, 0.9),   20000)
+		, make_tuple(MuLambda(l, 50, 100, 0.95),  20000)
+		, make_tuple(MuLambda(l, 100, 200, 0.99), 20000)
 		};
 
 	for (uint i = 0; i < configs.size(); i++) {
@@ -61,39 +62,21 @@ void simpleDemo() {
 
 	OnePlusOne s1(l);
 
-	s1.run(100);
-	cout << "1+1 F 100: " << l.F(s1.getOptimal()) << '\n';
-	plots.push_back(s1.getStats());
-	s1.reset();
-
-	s1.run(1000);
-	cout << "1+1 F 500: " << l.F(s1.getOptimal()) << '\n';
-	plots.push_back(s1.getStats());
-	s1.reset();
-
-	s1.run(1000);
-	cout << "1+1 F 1000: " << l.F(s1.getOptimal()) << '\n';
-	plots.push_back(s1.getStats());
-	s1.reset();
-
+	for (int i = 0; i < 3; i++) {
+		s1.run(10000);
+		cout << "1+1: " << l.F(s1.getOptimal()) << '\n';
+		plots.push_back(s1.getStats());
+		s1.reset();
+	}
 
 	MuLambda s2(l, 2, 5, 0);
 
-	s2.run(100);
-	cout << "mulambda F 100: " << l.F(s2.getOptimal()) << '\n';
-	plots.push_back(s2.getStats());
-	s2.reset();
-
-	s2.run(1000);
-	cout << "mulambda F 500: " << l.F(s2.getOptimal()) << '\n';
-	plots.push_back(s2.getStats());
-	s2.reset();
-
-	s2.run(1000);
-	cout << "mulambda F 1000: " << l.F(s2.getOptimal()) << '\n';
-	plots.push_back(s2.getStats());
-	s2.reset();
-
+	for (int i = 0; i < 3; i++) {
+		s2.run(10000);
+		cout << "mulambda F: " << l.F(s2.getOptimal()) << '\n';
+		plots.push_back(s2.getStats());
+		s2.reset();
+	}
 
 //	SA s3(l, 0.75, 0.5);
 //	s3.run(100);
@@ -121,24 +104,24 @@ void testing_SA() {
 
 	SA s3(l, alpha, mu);
 
-	s3.run(100);
+	s3.run(10000);
 	s3.set_initial_tempreature(t0);
 	s3.set_cooling_option('l');
-	std::cout << "SA F 100: " << l.F(s3.getOptimal()) << '\n';
+	std::cout << "SA F 1: " << l.F(s3.getOptimal()) << '\n';
 	s3.print_sequence();
 	s3.reset();
 
-	s3.run(500);
+	s3.run(10000);
 //	s3.set_initial_tempreature(t0);
 //	s3.set_cooling_option('e');
-	std::cout << "SA F 500: " << l.F(s3.getOptimal()) << '\n';
+	std::cout << "SA F 2: " << l.F(s3.getOptimal()) << '\n';
 	s3.print_sequence();
 	s3.reset();
 
-	s3.run(1000);
+	s3.run(20000);
 //	s3.set_initial_tempreature(t0);
 //	s3.set_cooling_option('e');
-	std::cout << "SA F 1000: " << l.F(s3.getOptimal()) << '\n';
+	std::cout << "SA F 3: " << l.F(s3.getOptimal()) << '\n';
 	s3.print_sequence();
 	s3.reset();
 
@@ -149,7 +132,7 @@ void testing_SA() {
 int main () {
 
 	//simpleDemo();
-	compareMuLambdas(15);
+	compareMuLambdas(30);
 	//ambdas();
 	//testing_SA();
 

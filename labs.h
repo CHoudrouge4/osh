@@ -5,7 +5,6 @@
 #include <iostream>
 #include <unordered_map>
 
-// TODO add memoization
 class Labs {
 	std::unordered_map<Bvec,double> memo;
 public:
@@ -13,6 +12,7 @@ public:
 	const Bvec optVec;
 	const int optE;
 	const double optF;
+	long callsNum; // number of calls to E/F
 
 	Labs(int);
 	int E(const Bvec&);

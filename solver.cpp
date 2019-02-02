@@ -18,6 +18,12 @@ Solver::Solver (const Labs& l): labs(l), opt_val(l.N) {
 	uni_dis_one = std::uniform_real_distribution<double>(0, 1);
 }
 
+void Solver::reset() {
+	labs.callsNum = 0;
+	opt_val.clear();
+	opt = labs.F(opt_val);
+}
+
 void Solver::sbm(Bvec& x, int l) {
 	for(int i = 0; i < l; ++i) x.flipBit(uni_dis_N(gen));
 }
@@ -34,21 +40,30 @@ void Solver::uni_crossover(Bvec& target, const Bvec& other) {
 
 Bvec Solver::getOptimal() { return opt_val; }
 
-long long getTimeMs() {
+long long getTimeMcs() {
 	uint64_t us =
 		std::chrono::duration_cast<std::chrono::microseconds>
 		(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 	return us;
 }
 
-void Solver::recordBegin() {
-	stats.clear();
-	last_run_start = getTimeMs();
+long long Solver::getRunningTimeMcs() {
+	return getTimeMcs() - last_run_start;
 }
 
-void Solver::recordCurrent(int iterNum) {
-	long long cur_time = getTimeMs() - last_run_start;
-	stats.push_back(std::make_tuple(cur_time, iterNum, opt));
+long long Solver::getRunningTimeMs() {
+	long long x = getRunningTimeMcs();
+	return x / 1000;
+}
+
+void Solver::recordBegin() {
+	stats.clear();
+	last_run_start = getTimeMcs();
+}
+
+void Solver::recordCurrent() {
+	long long cur_time = getRunningTimeMcs();
+	stats.push_back(std::make_tuple(cur_time, labs.callsNum, opt));
 }
 
 std::vector<statItem>Solver::getStats() { return stats; }

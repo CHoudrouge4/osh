@@ -33,11 +33,17 @@ Labs::Labs (int n)
 	: N(n)
 	, optVec(optimalSolution(n))
 	, optE(energy(n,this->optVec))
-	, optF(merit(n,this->optVec)) { }
+	, optF(merit(n,this->optVec))
+	, callsNum(0) { }
 
-int Labs::E(const Bvec &S) { return energy(N, S); }
+int Labs::E(const Bvec &S) {
+	int e = energy(N, S);
+	callsNum++;
+	return e;
+}
 
 double Labs::F(const Bvec &S) {
+	callsNum++;
 	std::unordered_map<Bvec,double>::const_iterator res = memo.find(S);
 	if (res == memo.end()) {
 		double m = merit(N, S);

@@ -13,40 +13,43 @@
 
 OnePlusOne::OnePlusOne(const Labs& labs): Solver(labs), tmp_opt(labs.N) {}
 
-void OnePlusOne::run(int iterN) {
+void OnePlusOne::run(long long timeout) {
 	opt_val.randomise();
+	opt = labs.F(opt_val);
 	tmp_opt = opt_val;
 
 	recordBegin();
-	for (int i = 0; i < iterN; i++) {
+	while (true) {
 		sbm(tmp_opt);
 		if(labs.F(tmp_opt) > labs.F(opt_val)) {
 			opt_val = tmp_opt;
 			opt = labs.F(opt_val);
 		}
 		else tmp_opt = opt_val;
-		recordCurrent(i);
+
+		recordCurrent();
 		if (opt == labs.optF) break;
+		if (getRunningTimeMs() > timeout) break;
 	}
 }
-
-void OnePlusOne::reset() { opt_val.clear(); opt = labs.F(opt_val); }
-
 
 // Mu Lambda
 
 
-MuLambda::MuLambda (const Labs& labs, int mu, int lambda, double crossoverP):
-	Solver(labs), mu(mu), lambda(lambda), crossoverP(crossoverP) {
-	uni_dis_mu = std::uniform_int_distribution<int>(0, mu-1);
+MuLambda::MuLambda (const Labs& labs, int mu, int lambda, double crossoverP)
+	: Solver(labs)
+	, mu(mu)
+	, lambda(lambda)
+	, crossoverP(crossoverP)
+	, uni_dis_mu(std::uniform_int_distribution<int>(0, mu-1)) {
 	ppl = std::vector<Bvec>(mu+lambda, Bvec(labs.N));
 }
 
-void MuLambda::run(int iterN) {
+void MuLambda::run(long long timeout) {
 	for (int i = 0; i < mu; i++) { ppl[i].randomise(); }
 
 	recordBegin();
-	for (int i = 0; i < iterN; i++) {
+	while (true) {
 		// variation
 		for (int j = 0; j < lambda; j++) {
 			if (uni_dis_one(gen) < crossoverP) {
@@ -63,13 +66,10 @@ void MuLambda::run(int iterN) {
 
 		opt_val = ppl[0];
 		opt = labs.F(opt_val);
-		recordCurrent(i);
+		recordCurrent();
 		if (opt == labs.optF) break;
+		if (getRunningTimeMs() > timeout) break;
 	}
-}
-
-void MuLambda::reset() {
-	opt_val.clear();
 }
 
 // Simulated annealing
@@ -107,15 +107,15 @@ void SA::linear_cooling(double &t, int i) {
 	t = t - mu * i;
 }
 
-void SA::simulating_annealing(double t, int nb_iterations, char option) {
-	std::uniform_real_distribution<> urd(0, 1);
+void SA::simulating_annealing(double t, long long timeout, char option) {
 
 	Bvec s(labs.N);
 	sbm(s, labs.N);
 	std::cout << "what is s: " << s << '\n';
 	opt = labs.F(opt_val);
+
 	recordBegin();
-	for(int i = 0; i < nb_iterations; ++i) {
+	for (int i = 0; true; i++) {
 		auto neighbor = get_neighbor(s);
 		double fs = labs.F(s);
 		double fn = labs.F(neighbor);
@@ -127,18 +127,19 @@ void SA::simulating_annealing(double t, int nb_iterations, char option) {
 			}
 		} else {
 			double acc_prob = compute_acceptance_probability(fs, fn, t);
-			double prob = urd(gen);
+			double prob = uni_dis_one(gen);
 			if(prob < acc_prob) s = neighbor;
 		}
 		cooling(option, t, i);
-		recordCurrent(i);
+
+		recordCurrent();
+		if (opt == labs.optF) break;
+		if (getRunningTimeMs() > timeout) break;
 	}
 }
 
-void SA::reset() { opt_val.clear();}
-
-void SA::run(int iterNum) {
-	simulating_annealing(t0, iterNum, option);
+void SA::run(long long timeout) {
+	simulating_annealing(t0, timeout, option);
 }
 
 void SA::set_cooling_option(char cooling_option) { option = cooling_option; }
