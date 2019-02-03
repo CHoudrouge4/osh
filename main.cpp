@@ -2,6 +2,7 @@
 #include <fstream>
 #include "bvec.h"
 #include "solver.h"
+#include "runner.h"
 #include "method.h"
 
 using namespace std;
@@ -43,7 +44,7 @@ void compareMuLambdas(int n) {
 
 		s.run(iters);
 		cout << "mulambda " << i << ": " << l.F(s.getOptimal()) << '\n';
-		plots.push_back(s.getStats());
+		plots.push_back(s.stats);
 		s.reset();
 	}
 	dumpStats(plots,"mulambda");
@@ -64,7 +65,7 @@ void simpleDemo() {
 	for (int i = 0; i < 3; i++) {
 		s1.run(5000);
 		cout << "1+1: " << l.F(s1.getOptimal()) << '\n';
-		plots.push_back(s1.getStats());
+		plots.push_back(s1.stats);
 		s1.reset();
 	}
 
@@ -73,16 +74,16 @@ void simpleDemo() {
 	for (int i = 0; i < 3; i++) {
 		s2.run(5000);
 		cout << "mulambda F: " << l.F(s2.getOptimal()) << '\n';
-		plots.push_back(s2.getStats());
+		plots.push_back(s2.stats);
 		s2.reset();
 	}
 
 	SA s3(l, 0.75, 0.5);
-	//s3.set_initial_tempreature(10000);
+	s3.set_initial_tempreature(10000);
 	s3.set_cooling_option(false);
 	s3.run(10000);
 	std::cout << "SA F 100: " << l.F(s3.getOptimal()) << '\n';
-	plots.push_back(s3.getStats());
+	plots.push_back(s3.stats);
 	s3.reset();
 
 	dumpStats(plots,"main");
@@ -107,38 +108,47 @@ void testing_SA() {
 	s3.set_initial_tempreature(t0);
 	s3.set_cooling_option('l');
 	std::cout << "SA F 1: " << l.F(s3.getOptimal()) << '\n';
-	s3.print_sequence();
 	s3.reset();
 
 	s3.run(10000);
 //	s3.set_initial_tempreature(t0);
 //	s3.set_cooling_option('e');
 	std::cout << "SA F 2: " << l.F(s3.getOptimal()) << '\n';
-	s3.print_sequence();
 	s3.reset();
 
 	s3.run(20000);
 //	s3.set_initial_tempreature(t0);
 //	s3.set_cooling_option('e');
 	std::cout << "SA F 3: " << l.F(s3.getOptimal()) << '\n';
-	s3.print_sequence();
 	s3.reset();
 
 	dumpStats(plots,"sa_stat");
 
 }
 
+void measure_SA(int n) {
+	Labs l(n);
+	Runner r;
+
+	SA sa(l, 0.75, 0.5);
+	sa.set_initial_tempreature(10000);
+	sa.set_cooling_option(false);
+
+	r.execute(sa, 10, 10000);
+
+	cout << "Hits: " << r.hits_n <<
+		", hits ratio: " << r.hits_ratio <<
+		", avg t: " << r.average_t <<
+		"\n";
+	dumpStats(r.stats, "sa_runner");
+}
+
 int main () {
 
-	simpleDemo();
+	measure_SA(25);
+	//simpleDemo();
 	//compareMuLambdas(30);
 	//testing_SA();
 
-
-//	Labs l(5);
-//	std::vector<bool> v = {0, 0, 0, 1, 0, 1};
-//	Bvec b(v);
-//	b.print_encoding();
-//	std::cout << l.F(b) << '\n';
 	return 0;
 }

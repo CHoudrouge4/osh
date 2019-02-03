@@ -14,7 +14,7 @@ class OnePlusOne : public Solver {
 
 public:
 	OnePlusOne(const Labs&);
-	void run(long long timeout);
+	bool run(long long timeout);
 };
 
 class MuLambda : public Solver {
@@ -29,7 +29,7 @@ class MuLambda : public Solver {
 
 public:
 	MuLambda(const Labs&, int mu, int lambda, double crossover_prob);
-	void run(long long timeout);
+	bool run(long long timeout);
 };
 
 class SA : public Solver {
@@ -37,7 +37,7 @@ class SA : public Solver {
 public:
 	SA(const Labs&, const double alpha, const double mu);
 
-	void run(long long timeout);
+	bool run(long long timeout);
 	void set_cooling_option(bool is_exp);
 	void set_initial_tempreature(double init_temp);
 private:

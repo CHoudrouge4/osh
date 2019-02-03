@@ -12,9 +12,10 @@ struct Solver {
 
 	Bvec getOptimal();
 
-	// Accepts time in ms
-	virtual void run(long long timeout) = 0;
-	virtual void reset();
+	// Accepts time in ms, returns true if it found the optimum (or
+	// false for "timed out").
+	virtual bool run(long long timeout) = 0;
+	void reset();
 
 	void sbm(Bvec&);
 	void sbm(Bvec&, int);
@@ -24,10 +25,10 @@ struct Solver {
 	void recordBegin();
 	// Record current stats
 	void recordCurrent();
-	// Obtain the statistics
-	std::vector<statItem> getStats();
-
-	void print_sequence() const;
+	// Statistics. Each element is (time,iteration,value)
+	std::vector<statItem> stats;
+	// Running time in ms.
+	long long running_time;
 
 protected:
 	Labs labs;
@@ -47,6 +48,4 @@ protected:
 	// Getting current runningtime
 	long long getRunningTimeMcs();
 	long long getRunningTimeMs();
-	// Statistics. Each element is (time,iteration,value)
-	std::vector<statItem> stats;
 };

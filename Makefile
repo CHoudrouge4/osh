@@ -3,8 +3,8 @@ CFLAGS = -g -Wall -O2
 C = -c
 VERSION = -std=c++11
 OUTPUT = labs.exe
-SOURCES = main.cpp bvec.cpp labs.cpp solver.cpp method.cpp
-HEADERS = bvec.h labs.h solver.h method.h
+SOURCES = main.cpp bvec.cpp labs.cpp solver.cpp method.cpp runner.cpp
+HEADERS = bvec.h labs.h solver.h method.h runner.h
 OBJECTS = $(SOURCES:.cpp=.o)
 
 $(OUTPUT): $(OBJECTS)

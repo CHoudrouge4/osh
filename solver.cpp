@@ -22,6 +22,8 @@ void Solver::reset() {
 	labs.callsNum = 0;
 	opt_val.clear();
 	opt = labs.F(opt_val);
+	stats.clear();
+	running_time = 0;
 }
 
 void Solver::sbm(Bvec& x, int l) {
@@ -64,10 +66,4 @@ void Solver::recordBegin() {
 void Solver::recordCurrent() {
 	long long cur_time = getRunningTimeMcs();
 	stats.push_back(std::make_tuple(cur_time, labs.callsNum, opt));
-}
-
-std::vector<statItem>Solver::getStats() { return stats; }
-
-void Solver::print_sequence() const {
-	std::cout << "Optimal Sequence is: " << opt_val << '\n';
 }

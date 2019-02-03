@@ -13,7 +13,7 @@
 
 OnePlusOne::OnePlusOne(const Labs& labs): Solver(labs), tmp_opt(labs.N) {}
 
-void OnePlusOne::run(long long timeout) {
+bool OnePlusOne::run(long long timeout) {
 	opt_val.randomise();
 	opt = labs.F(opt_val);
 	tmp_opt = opt_val;
@@ -27,8 +27,8 @@ void OnePlusOne::run(long long timeout) {
 		}
 		else tmp_opt = opt_val;
 
-		if (opt == labs.optF) break;
-		if (getRunningTimeMs() > timeout) break;
+		if (opt == labs.optF) { running_time = getRunningTimeMs(); return true; }
+		if (getRunningTimeMs() > timeout) { running_time = getRunningTimeMs(); return false; }
 		if (i % 100 == 0) recordCurrent();
 	}
 }
@@ -45,7 +45,7 @@ MuLambda::MuLambda (const Labs& labs, int mu, int lambda, double crossover_prob)
 	ppl = std::vector<Bvec>(mu+lambda, Bvec(labs.N));
 }
 
-void MuLambda::run(long long timeout) {
+bool MuLambda::run(long long timeout) {
 	for (int i = 0; i < mu; i++) { ppl[i].randomise(); }
 
 	recordBegin();
@@ -66,8 +66,8 @@ void MuLambda::run(long long timeout) {
 
 		opt_val = ppl[0];
 		opt = labs.F(opt_val);
-		if (opt == labs.optF) break;
-		if (getRunningTimeMs() > timeout) break;
+		if (opt == labs.optF) { running_time = getRunningTimeMs(); return true; }
+		if (getRunningTimeMs() > timeout) { running_time = getRunningTimeMs(); return false; }
 		if (i % 10 == 0) recordCurrent();
 	}
 }
@@ -82,7 +82,7 @@ SA::SA(const Labs& labs, const double alpha, const double mu) :
 	this->mu = mu;
 }
 
-void SA::run(long long timeout) {
+bool SA::run(long long timeout) {
 	double t = t0;
 	Bvec s(labs.N);
 	sbm(s, labs.N);
@@ -110,8 +110,8 @@ void SA::run(long long timeout) {
 		}
 
 		if (i % 150 == 0) recordCurrent(); // we don't want to use it too often
-		if (opt == labs.optF) break;
-		if (getRunningTimeMs() > timeout) break;
+		if (opt == labs.optF) { running_time = getRunningTimeMs(); return true; }
+		if (getRunningTimeMs() > timeout) { running_time = getRunningTimeMs(); return false; }
 
 		// Cooling
 		if (exp_cooling) {
