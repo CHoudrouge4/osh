@@ -4,7 +4,6 @@
 #include "solver.h"
 #include "method.h"
 
-// this is very sad!!
 using namespace std;
 
 // Move it elsewhere
@@ -51,40 +50,40 @@ void compareMuLambdas(int n) {
 }
 
 void simpleDemo() {
-	Labs l(5);
+	Labs l(25);
 
-	Bvec v(5);
+	Bvec v(25);
 	v.randomise();
 	cout << "Random: " << l.F(v) << " at " << v << '\n';
-	cout << "Its optimal: " << l.optF << " with value: " << l.F(l.optF) << '\n';
+	cout << "Optimal: " << l.optF << " at " << l.optVec << "\n";
 
 	vector<vector<statItem>> plots;
 
 	OnePlusOne s1(l);
 
 	for (int i = 0; i < 3; i++) {
-		s1.run(10000);
+		s1.run(5000);
 		cout << "1+1: " << l.F(s1.getOptimal()) << '\n';
 		plots.push_back(s1.getStats());
 		s1.reset();
 	}
 
-	MuLambda s2(l, 2, 5, 0);
+	MuLambda s2(l, 2, 5, 0.9);
 
 	for (int i = 0; i < 3; i++) {
-		s2.run(10000);
+		s2.run(5000);
 		cout << "mulambda F: " << l.F(s2.getOptimal()) << '\n';
 		plots.push_back(s2.getStats());
 		s2.reset();
 	}
 
-//	SA s3(l, 0.75, 0.5);
-//	s3.run(100);
-//	s3.set_initial_tempreature(10000);
-//	s3.set_cooling_option('e');
-//	std::cout << "SA F 100: " << l.F(s3.getOptimal()) << '\n';
-//	s3.print_sequence();
-//	s3.reset();
+	SA s3(l, 0.75, 0.5);
+	//s3.set_initial_tempreature(10000);
+	s3.set_cooling_option(false);
+	s3.run(10000);
+	std::cout << "SA F 100: " << l.F(s3.getOptimal()) << '\n';
+	plots.push_back(s3.getStats());
+	s3.reset();
 
 	dumpStats(plots,"main");
 }
@@ -131,9 +130,8 @@ void testing_SA() {
 
 int main () {
 
-	//simpleDemo();
-	compareMuLambdas(30);
-	//ambdas();
+	simpleDemo();
+	//compareMuLambdas(30);
 	//testing_SA();
 
 

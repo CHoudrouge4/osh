@@ -21,40 +21,30 @@ class MuLambda : public Solver {
 	// Algo parameters
 	const int mu;
 	const int lambda;
-	const int crossoverP;
+	const int crossover_prob;
 	std::uniform_int_distribution<int> uni_dis_mu;
 
 	// population, consists of mu + lambda elements
 	std::vector<Bvec> ppl;
 
 public:
-	MuLambda(const Labs&, int mu, int lambda, double crossoverP);
+	MuLambda(const Labs&, int mu, int lambda, double crossover_prob);
 	void run(long long timeout);
 };
 
 class SA : public Solver {
 
 public:
+	SA(const Labs&, const double alpha, const double mu);
 
 	void run(long long timeout);
-	void set_cooling_option(char cooling_option);
+	void set_cooling_option(bool is_exp);
 	void set_initial_tempreature(double init_temp);
-	//using Solver::Solver;
-	SA(const Labs&, const double alpha, const double mu);
-	// options: l for linear and e for exponention.
 private:
-	//Bvec opt_sec;
 
-	double alpha; // coolint exponentiatl constant
-	double mu;    // coolint linear constant
+	double alpha;        // cooling exponentiatl constant
+	double mu;           // cooling linear constant
 	double t0 = 1000;    // initial temprature
-	char option = 'l';
-
-	void simulating_annealing(double t, long long timeout, char option);
-
-	Bvec get_neighbor(Bvec s);
-	void cooling(char, double&, int);
-	double compute_acceptance_probability(double, double, double);
-	void exp_cooling(double&, int);
-	void linear_cooling(double&, int);
+	// it must be an enum, but for now we only have 2 options
+	bool exp_cooling = true; // otherwise linear
 };
