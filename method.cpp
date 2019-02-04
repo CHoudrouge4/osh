@@ -125,44 +125,52 @@ bool SA::run(long long timeout) {
 void SA::set_cooling_option(bool is_exp) { exp_cooling = is_exp; }
 void SA::set_initial_tempreature(double init_temp) { t0 = init_temp; }
 
-TS::TS(const Labs& l, int max_itr) : Solver(l) {
-	this->max_itr = max_itr;
+TS::TS(const Labs& l, const int itr) :
+	 Solver(l) {
+	this->max_itr = itr;
+	assert(max_itr >= 1);
+	assert(max_itr == itr);
 	M = std::vector<int>(l.N, 0);
-	opt_val = Bvec(l.N);
+	opt_val = Bvec(labs.N);
+	S = Bvec(labs.N);
+	sbm(S);
 	L = l.N;
 }
 
 bool TS::run(long long timeout) {
 
-
 	const int min_tabu = max_itr/10;
 	const int extra_tabu = max_itr/50;
-	std::uniform_int_distribution<int> urand(0, extra_tabu - 1);
-
-	Bvec S = opt_val;
+	std::uniform_int_distribution<int> urand(0, std::max(extra_tabu - 1, 1));
+	opt_val = S;
 	Bvec S_plus = Bvec(labs.N);
-	double f = labs.E(opt_val);
+	opt = labs.F(opt_val);
 	int index = 0;
 	for(int k = 1; k < max_itr; ++k) {
-		double f_plus = std::numeric_limits<double>::max();
+		double f_plus = std::numeric_limits<double>::min();
 		for(int i = 0; i < L; ++i ) {
-			Bvec neighbor = opt_val;
+			Bvec neighbor = S;
 			sbm(neighbor, 1);
-			double f_neighbour = labs.E(neighbor);
-			if(k >= M[i] || f_neighbour < f) {
-				if(f_neighbour < f_plus) {
+			double f_neighbour = labs.F(neighbor);
+			if(k >= M[i] || f_neighbour > opt) {
+				if(f_neighbour > f_plus) {
 					f_plus = f_neighbour;
-					S_plus = f_neighbour;
+					S_plus = neighbor;
 					index = i;
 				}
 			}
 		}
+
 		S = S_plus;
 		M[index] = k + min_tabu + urand(gen);
-		if(f_plus < f) {
+		if(f_plus > opt) {
 			opt_val = S_plus;
-			f = f_plus;
+			opt = f_plus;
 		}
 	}
 	return false;
 }
+
+void TS::set_max_itr(const int itr) { max_itr = itr; }
+void TS::set_S(const Bvec s) { S = s; }
+

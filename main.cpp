@@ -143,12 +143,22 @@ void measure_SA(int n) {
 	dumpStats(r.stats, "sa_runner");
 }
 
+void test_TS() {
+	Labs l(5);
+	TS s(l, 10);
+	s.run(10);
+	std::cout << "TS F 1: " << l.F(s.getOptimal()) << '\n';
+	s.reset();
+
+//	dumpStats(plots,"ts_stat");
+}
+
 int main () {
 
-	measure_SA(25);
+	//measure_SA(25);
 	//simpleDemo();
 	//compareMuLambdas(30);
 	//testing_SA();
-
+	test_TS();
 	return 0;
 }

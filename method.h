@@ -4,7 +4,7 @@
 #include <vector>
 #include <random>
 #include <iostream>
-
+#include "bvec.h"
 
 class OnePlusOne : public Solver {
 	// Temporary optimum, the other "1"
@@ -50,14 +50,16 @@ private:
 };
 
 class TS : public Solver {
+
 public:
-	TS(const Labs&, const int max_itr);
+	TS(const Labs&, const int itr);
 
 	bool run(long long timeout);
-	void set_max_itr(const int&);
-
+	void set_max_itr(const int);
+	void set_S(const Bvec s);
 private:
 	int max_itr;
 	int L;
 	std::vector<int> M;
+	Bvec S;
 };
