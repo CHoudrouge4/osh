@@ -8,8 +8,9 @@
 using statItem = std::tuple<int64_t, long, double>;
 
 struct Solver {
-	Solver(const Labs&);
+	Solver(Labs);
 
+	double get_opt();
 	Bvec getOptimal();
 
 	// Accepts time in ms, returns true if it found the optimum (or
@@ -30,7 +31,6 @@ struct Solver {
 	// Running time in ms.
 	long long running_time;
 
-	double get_opt();
 protected:
 	Labs labs;
 

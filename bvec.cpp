@@ -3,18 +3,19 @@
 #include <iostream>
 #include <array>
 #include <vector>
+#include <cassert>
 #include <random>
 
 
-Bvec::Bvec(int n) {
-	b = std::vector<bool>(n);
+Bvec::Bvec(int n): b(n) {
+	assert (n > 0);
 }
 
-Bvec::Bvec(std::vector<bool> &v) {
-	b = v;
+Bvec::Bvec(const std::vector<bool> &v): b(v) {
+	assert (v.size() > 0);
 }
 
-int Bvec::size() { return b.size(); }
+int Bvec::size() const { return b.size(); }
 
 void Bvec::randomise() {
 	for (size_t i = 0; i < b.size(); i++) if (rand() % 2 == 0) b[i] = true;
@@ -27,6 +28,10 @@ void Bvec::clear() { for (uint i = 0; i < b.size(); i++) b[i] = false; }
 bool Bvec::get(int i) const { return b.at(i); }
 void Bvec::set(int i,bool f) { b[i] = f; }
 void Bvec::flipBit(int i) { b[i] = b[i] xor 1; }
+
+size_t Bvec::hash() const {
+	return std::hash<std::vector<bool>>()(b);
+}
 
 bool Bvec::operator==(const Bvec &other) const {
 	return (this->b) == (other.b);

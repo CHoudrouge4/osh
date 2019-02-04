@@ -11,7 +11,7 @@
 // 1 + 1
 
 
-OnePlusOne::OnePlusOne(const Labs& labs): Solver(labs), tmp_opt(labs.N) {}
+OnePlusOne::OnePlusOne(Labs labs): Solver(labs), tmp_opt(labs.N) {}
 
 bool OnePlusOne::run(long long timeout) {
 	sbm(opt_val);
@@ -36,7 +36,7 @@ bool OnePlusOne::run(long long timeout) {
 // Mu Lambda
 
 
-MuLambda::MuLambda (const Labs& labs, int mu, int lambda, double crossover_prob)
+MuLambda::MuLambda (Labs labs, int mu, int lambda, double crossover_prob)
 	: Solver(labs)
 	, mu(mu)
 	, lambda(lambda)
@@ -74,12 +74,10 @@ bool MuLambda::run(long long timeout) {
 
 // Simulated annealing
 
-SA::SA(const Labs& labs, const double alpha, const double mu) :
-	Solver(labs) {
+SA::SA(Labs labs, const double alpha, const double mu) :
+	Solver(labs), alpha(alpha), mu(mu) {
 	assert(alpha > 0 and alpha < 1);
 	assert(mu > 0 and  mu < 1);
-	this->alpha = alpha;
-	this->mu = mu;
 }
 
 bool SA::run(long long timeout) {
@@ -125,16 +123,14 @@ bool SA::run(long long timeout) {
 void SA::set_cooling_option(bool is_exp) { exp_cooling = is_exp; }
 void SA::set_initial_tempreature(double init_temp) { t0 = init_temp; }
 
-TS::TS(const Labs& l, const int itr) :
-	 Solver(l) {
+TS::TS(Labs l, const int itr) :
+	Solver(l), S(labs.N) {
 	this->max_itr = itr;
 	assert(max_itr >= 1);
 	assert(max_itr == itr);
 	M = std::vector<int>(l.N, 0);
 	opt_val = Bvec(labs.N);
-	S = Bvec(labs.N);
 	sbm(S);
-	L = l.N;
 }
 
 bool TS::run(long long timeout) {
@@ -148,7 +144,7 @@ bool TS::run(long long timeout) {
 	int index = 0;
 	for(int k = 1; k < max_itr; ++k) {
 		double f_plus = std::numeric_limits<double>::min();
-		for(int i = 0; i < L; ++i ) {
+		for(int i = 0; i < labs.N; ++i ) {
 			Bvec neighbor = S;
 			sbm(neighbor, 1);
 			double f_neighbour = labs.F(neighbor);
@@ -174,7 +170,7 @@ bool TS::run(long long timeout) {
 void TS::set_max_itr(const int itr) { max_itr = itr; }
 void TS::set_S(const Bvec s) { S = s; }
 
-MA::MA(const Labs& l, const int popsize, const int off_size, const double ppx, const double ppm) : Solver(l.N) {
+MA::MA(Labs l, const int popsize, const int off_size, const double ppx, const double ppm) : Solver(l) {
 	ppl = std::vector<Bvec> (popsize, Bvec(l.N));
 	ppl_val = std::vector<double>(popsize);
 	offsprings = std::vector<Bvec> (off_size, Bvec(l.N));
@@ -242,4 +238,3 @@ void MA::get_optimums() {
 		}
 	}
 }
-

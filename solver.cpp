@@ -12,7 +12,7 @@
 std::random_device Solver::rd;
 std::mt19937 Solver::gen(rd());
 
-Solver::Solver (const Labs& l): labs(l), opt_val(l.N) {
+Solver::Solver (Labs l): labs(l), opt_val(l.N) {
 	bin_dis = std::binomial_distribution<int>(l.N-1, 1/((double)l.N));
 	uni_dis_N = std::uniform_int_distribution<int>(0, l.N-1);
 	uni_dis_one = std::uniform_real_distribution<double>(0, 1);

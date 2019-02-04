@@ -6,12 +6,10 @@
 
 
 struct Bvec {
-	std::vector<bool> b;
-	Bvec(){}
 	Bvec(int n);
-	Bvec(std::vector<bool> &v);
+	Bvec(const std::vector<bool> &v);
 
-	int size();
+	int size() const;
 	void randomise();
 	void clear();
 
@@ -19,9 +17,14 @@ struct Bvec {
 	bool get(int i) const;
 	void set(int i,bool v);
 	void flipBit(int i);
-	void print_encoding() const;
+	size_t hash() const;
 
 	bool operator==(const Bvec &other) const;
+
+	void print_encoding() const;
+
+private:
+	std::vector<bool> b;
 };
 
 std::basic_ostream<char>& operator << (std::basic_ostream<char>& os, Bvec b);
@@ -30,7 +33,7 @@ namespace std {
 	template <>
 	struct hash<Bvec> {
 		size_t operator()(const Bvec& v) const {
-			return hash<vector<bool>>()(v.b);
+			return v.hash(); // hash<vector<bool>>()(v.b);
 		}
 	};
 }

@@ -129,15 +129,22 @@ void testing_SA() {
 
 }
 
-void measure_SA(int n) {
-	Labs l(n);
+void measure_SA(int n, int threads_num) {
 	Runner r;
 
-	SA sa(l, 0.75, 0.5);
-	sa.set_initial_tempreature(10000);
-	sa.set_cooling_option(false);
+	vector<SA> sas;
+	for (int i = 0; i < threads_num; i++) {
+		SA sa(Labs(n), 0.75, 0.5);
+		sa.set_initial_tempreature(10000);
+		sa.set_cooling_option(false);
 
-	r.execute(sa, 10, 10000);
+		sas.push_back(sa);
+	}
+
+	vector<Solver*> solvers(threads_num);
+	for (int i = 0; i < threads_num; i++) solvers[i] = &sas[i];
+
+	r.execute(solvers, 30, 10000);
 
 	cout << "Hits: " << r.hits_n <<
 		", hits ratio: " << r.hits_ratio <<
@@ -157,13 +164,12 @@ void test_TS() {
 }
 
 int main () {
-
 	//measure_SA(25);
 	//simpleDemo();
 	//compareMuLambdas(30);
-//	testing_SA();
-//	test_TS();
+	//testing_SA();
+	//test_TS();
+	//measure_SA(23, 2);
 	std::cout << rand() << '\n';
 	std::cout << rand() << '\n';
-	return 0;
 }
