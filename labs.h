@@ -8,7 +8,7 @@
 class Labs {
 	std::unordered_map<Bvec,double> memo;
 public:
-	const int N;
+	int N;
 	const Bvec optVec;
 	const int optE;
 	const double optF;

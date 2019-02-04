@@ -7,7 +7,7 @@
 
 struct Bvec {
 	std::vector<bool> b;
-	Bvec() {}
+	Bvec(){}
 	Bvec(int n);
 	Bvec(std::vector<bool> &v);
 

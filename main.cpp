@@ -108,7 +108,10 @@ void testing_SA() {
 	s3.set_initial_tempreature(t0);
 	s3.set_cooling_option('l');
 	std::cout << "SA F 1: " << l.F(s3.getOptimal()) << '\n';
+	std::cout << "opt seq " <<  s3.getOptimal() << '\n';
 	s3.reset();
+
+
 
 	s3.run(10000);
 //	s3.set_initial_tempreature(t0);
@@ -144,7 +147,7 @@ void measure_SA(int n) {
 }
 
 void test_TS() {
-	Labs l(5);
+	Labs l(11);
 	TS s(l, 10);
 	s.run(10);
 	std::cout << "TS F 1: " << l.F(s.getOptimal()) << '\n';
@@ -158,7 +161,9 @@ int main () {
 	//measure_SA(25);
 	//simpleDemo();
 	//compareMuLambdas(30);
-	//testing_SA();
-	test_TS();
+//	testing_SA();
+//	test_TS();
+	std::cout << rand() << '\n';
+	std::cout << rand() << '\n';
 	return 0;
 }

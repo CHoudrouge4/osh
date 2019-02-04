@@ -53,7 +53,6 @@ class TS : public Solver {
 
 public:
 	TS(const Labs&, const int itr);
-
 	bool run(long long timeout);
 	void set_max_itr(const int);
 	void set_S(const Bvec s);
@@ -62,4 +61,24 @@ private:
 	int L;
 	std::vector<int> M;
 	Bvec S;
+};
+
+class MA : Solver {
+
+public:
+	MA(const Labs&, const int, const int off_size, const double, const double);
+	bool run(long long timeout);
+	void get_optimums();
+private:
+
+	double px;
+	double pm;
+
+	std::vector<Bvec> ppl;
+	std::vector<Bvec> offsprings;
+	std::vector<double> ppl_val;
+	std::vector<double> off_val;
+
+	Bvec select_parent();
+	void replace();
 };

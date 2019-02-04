@@ -30,6 +30,7 @@ struct Solver {
 	// Running time in ms.
 	long long running_time;
 
+	double get_opt();
 protected:
 	Labs labs;
 
@@ -37,6 +38,7 @@ protected:
 	Bvec opt_val;
 	std::binomial_distribution<int> bin_dis;
 	std::uniform_int_distribution<int> uni_dis_N; // [0,labs.N]
+	std::uniform_int_distribution<int> fair_coin;
 	std::uniform_real_distribution<double> uni_dis_one; // (0,1)
 
 	// Random Generation

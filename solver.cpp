@@ -16,6 +16,7 @@ Solver::Solver (const Labs& l): labs(l), opt_val(l.N) {
 	bin_dis = std::binomial_distribution<int>(l.N-1, 1/((double)l.N));
 	uni_dis_N = std::uniform_int_distribution<int>(0, l.N-1);
 	uni_dis_one = std::uniform_real_distribution<double>(0, 1);
+	fair_coin = std::uniform_int_distribution<int> (0, 1);
 }
 
 void Solver::reset() {
@@ -36,11 +37,14 @@ void Solver::sbm(Bvec& x) {
 }
 
 void Solver::uni_crossover(Bvec& target, const Bvec& other) {
-	for (int i = 0; i < labs.N; i++)
-		if (rand() % 2 == 0) target.set(i, other.get(i));
+	for (int i = 0; i < labs.N; i++) {
+		int rnd = fair_coin(gen);
+		if (rnd % 2 == 0) target.set(i, other.get(i));
+	}
 }
 
 Bvec Solver::getOptimal() { return opt_val; }
+double Solver::get_opt() { return opt; }
 
 long long getTimeMcs() {
 	uint64_t us =

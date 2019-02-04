@@ -14,7 +14,7 @@
 OnePlusOne::OnePlusOne(const Labs& labs): Solver(labs), tmp_opt(labs.N) {}
 
 bool OnePlusOne::run(long long timeout) {
-	opt_val.randomise();
+	sbm(opt_val);
 	opt = labs.F(opt_val);
 	tmp_opt = opt_val;
 
@@ -46,7 +46,7 @@ MuLambda::MuLambda (const Labs& labs, int mu, int lambda, double crossover_prob)
 }
 
 bool MuLambda::run(long long timeout) {
-	for (int i = 0; i < mu; i++) { ppl[i].randomise(); }
+	for (int i = 0; i < mu; i++) { sbm(ppl[i]); }
 
 	recordBegin();
 	for (int i = 0; true; i++) {
@@ -173,4 +173,73 @@ bool TS::run(long long timeout) {
 
 void TS::set_max_itr(const int itr) { max_itr = itr; }
 void TS::set_S(const Bvec s) { S = s; }
+
+MA::MA(const Labs& l, const int popsize, const int off_size, const double ppx, const double ppm) : Solver(l.N) {
+	ppl = std::vector<Bvec> (popsize, Bvec(l.N));
+	ppl_val = std::vector<double>(popsize);
+	offsprings = std::vector<Bvec> (off_size, Bvec(l.N));
+	off_val = std::vector<double>(popsize);
+	px = ppx;
+	pm = ppm;
+}
+
+bool MA::run(long long timeout) {
+	for(size_t i = 0; i < ppl.size(); ++i) {
+		sbm(ppl[i]);
+		ppl_val[i] = labs.F(ppl[i]);
+	}
+
+	TS local_search(this->labs, 1000);
+
+	recordBegin();
+	while(getRunningTimeMs() < timeout) {
+
+		for(size_t i = 0; i < offsprings.size(); ++i) {
+			double rnd = uni_dis_one(gen);
+			if(rnd < px) {
+				auto parent1 = select_parent();
+				auto parent2 = select_parent();
+				uni_crossover(offsprings[i], parent1);
+				uni_crossover(offsprings[i], parent2);
+			} else {
+				offsprings[i] = select_parent();
+			}
+			rnd = uni_dis_one(gen);
+			if(rnd < pm) {
+				sbm(offsprings[i]);
+			}
+			local_search.set_S(offsprings[i]);
+			local_search.run(timeout);
+			offsprings[i] = local_search.getOptimal();
+			off_val[i] = local_search.get_opt();
+		}
+
+		running_time = getRunningTimeMs();
+	}
+
+	return false;
+}
+
+Bvec MA::select_parent() {
+	int rnd_index = uni_dis_N(gen);
+	return ppl[rnd_index];
+}
+
+
+void MA::replace() {
+	for(size_t i = 0; i < ppl.size(); ++i)
+		if(off_val[i] >= ppl_val[i])
+			ppl[i] = offsprings[i];
+}
+
+void MA::get_optimums() {
+	opt = ppl_val[0];
+	opt_val = ppl[0];
+	for(size_t i = 1; i < ppl.size(); ++i) {
+		if(opt < ppl_val[i]) {
+			opt = ppl_val[i];
+			opt_val = ppl[i];
+		}
+	}
+}
 
