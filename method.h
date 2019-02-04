@@ -48,3 +48,16 @@ private:
 	// it must be an enum, but for now we only have 2 options
 	bool exp_cooling = true; // otherwise linear
 };
+
+class TS : public Solver {
+public:
+	TS(const Labs&, const int max_itr);
+
+	bool run(long long timeout);
+	void set_max_itr(const int&);
+
+private:
+	int max_itr;
+	int L;
+	std::vector<int> M;
+};

@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cassert>
-
+#include <limits>
 
 // 1 + 1
 
@@ -124,3 +124,45 @@ bool SA::run(long long timeout) {
 
 void SA::set_cooling_option(bool is_exp) { exp_cooling = is_exp; }
 void SA::set_initial_tempreature(double init_temp) { t0 = init_temp; }
+
+TS::TS(const Labs& l, int max_itr) : Solver(l) {
+	this->max_itr = max_itr;
+	M = std::vector<int>(l.N, 0);
+	opt_val = Bvec(l.N);
+	L = l.N;
+}
+
+bool TS::run(long long timeout) {
+
+
+	const int min_tabu = max_itr/10;
+	const int extra_tabu = max_itr/50;
+	std::uniform_int_distribution<int> urand(0, extra_tabu - 1);
+
+	Bvec S = opt_val;
+	Bvec S_plus = Bvec(labs.N);
+	double f = labs.E(opt_val);
+	int index = 0;
+	for(int k = 1; k < max_itr; ++k) {
+		double f_plus = std::numeric_limits<double>::max();
+		for(int i = 0; i < L; ++i ) {
+			Bvec neighbor = opt_val;
+			sbm(neighbor, 1);
+			double f_neighbour = labs.E(neighbor);
+			if(k >= M[i] || f_neighbour < f) {
+				if(f_neighbour < f_plus) {
+					f_plus = f_neighbour;
+					S_plus = f_neighbour;
+					index = i;
+				}
+			}
+		}
+		S = S_plus;
+		M[index] = k + min_tabu + urand(gen);
+		if(f_plus < f) {
+			opt_val = S_plus;
+			f = f_plus;
+		}
+	}
+	return false;
+}
