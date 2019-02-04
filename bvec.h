@@ -16,7 +16,7 @@ struct Bvec {
 	// Of course these two should be [] operators
 	bool get(int i) const;
 	void set(int i,bool v);
-	void flipBit(int i);
+	void flip_bit(int i);
 	size_t hash() const;
 
 	bool operator==(const Bvec &other) const;

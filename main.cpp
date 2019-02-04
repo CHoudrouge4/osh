@@ -43,7 +43,7 @@ void compareMuLambdas(int n) {
 		int iters = get<1>(configs[i]);
 
 		s.run(iters);
-		cout << "mulambda " << i << ": " << l.F(s.getOptimal()) << '\n';
+		cout << "mulambda " << i << ": " << l.F(s.get_opt_vec()) << '\n';
 		plots.push_back(s.stats);
 		s.reset();
 	}
@@ -56,7 +56,7 @@ void simpleDemo() {
 	Bvec v(25);
 	v.randomise();
 	cout << "Random: " << l.F(v) << " at " << v << '\n';
-	cout << "Optimal: " << l.optF << " at " << l.optVec << "\n";
+	cout << "Optimal: " << l.optF << " at " << l.opt_vec << "\n";
 
 	vector<vector<statItem>> plots;
 
@@ -64,7 +64,7 @@ void simpleDemo() {
 
 	for (int i = 0; i < 3; i++) {
 		s1.run(5000);
-		cout << "1+1: " << l.F(s1.getOptimal()) << '\n';
+		cout << "1+1: " << l.F(s1.get_opt_vec()) << '\n';
 		plots.push_back(s1.stats);
 		s1.reset();
 	}
@@ -73,7 +73,7 @@ void simpleDemo() {
 
 	for (int i = 0; i < 3; i++) {
 		s2.run(5000);
-		cout << "mulambda F: " << l.F(s2.getOptimal()) << '\n';
+		cout << "mulambda F: " << l.F(s2.get_opt_vec()) << '\n';
 		plots.push_back(s2.stats);
 		s2.reset();
 	}
@@ -82,7 +82,7 @@ void simpleDemo() {
 	s3.set_initial_tempreature(10000);
 	s3.set_cooling_option(false);
 	s3.run(10000);
-	std::cout << "SA F 100: " << l.F(s3.getOptimal()) << '\n';
+	std::cout << "SA F 100: " << l.F(s3.get_opt_vec()) << '\n';
 	plots.push_back(s3.stats);
 	s3.reset();
 
@@ -107,8 +107,8 @@ void testing_SA() {
 	s3.run(10000);
 	s3.set_initial_tempreature(t0);
 	s3.set_cooling_option('l');
-	std::cout << "SA F 1: " << l.F(s3.getOptimal()) << '\n';
-	std::cout << "opt seq " <<  s3.getOptimal() << '\n';
+	std::cout << "SA F 1: " << l.F(s3.get_opt_vec()) << '\n';
+	std::cout << "opt seq " <<  s3.get_opt_vec() << '\n';
 	s3.reset();
 
 
@@ -116,13 +116,13 @@ void testing_SA() {
 	s3.run(10000);
 //	s3.set_initial_tempreature(t0);
 //	s3.set_cooling_option('e');
-	std::cout << "SA F 2: " << l.F(s3.getOptimal()) << '\n';
+	std::cout << "SA F 2: " << l.F(s3.get_opt_vec()) << '\n';
 	s3.reset();
 
 	s3.run(20000);
 //	s3.set_initial_tempreature(t0);
 //	s3.set_cooling_option('e');
-	std::cout << "SA F 3: " << l.F(s3.getOptimal()) << '\n';
+	std::cout << "SA F 3: " << l.F(s3.get_opt_vec()) << '\n';
 	s3.reset();
 
 	dumpStats(plots,"sa_stat");
@@ -157,7 +157,7 @@ void test_TS() {
 	Labs l(11);
 	TS s(l, 10);
 	s.run(10);
-	std::cout << "TS F 1: " << l.F(s.getOptimal()) << '\n';
+	std::cout << "TS F 1: " << l.F(s.get_opt_vec()) << '\n';
 	s.reset();
 
 //	dumpStats(plots,"ts_stat");
@@ -169,7 +169,8 @@ int main () {
 	//compareMuLambdas(30);
 	//testing_SA();
 	//test_TS();
-	//measure_SA(23, 2);
-	std::cout << rand() << '\n';
-	std::cout << rand() << '\n';
+	measure_SA(25, 2);
+
+	//std::cout << rand() << '\n';
+	//std::cout << rand() << '\n';
 }

@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <cmath>
 
+bool enable_memo = false;
+
 int corr(int n, int k, const Bvec &S) {
 	int sum = 0;
 	for (int i = 0; i < n - k; i++)
@@ -31,25 +33,29 @@ double merit (int n, const Bvec &S) {
 
 Labs::Labs (int n)
 	: N(n)
-	, optVec(optimalSolution(n))
-	, optE(energy(n,this->optVec))
-	, optF(merit(n,this->optVec))
-	, callsNum(0) { }
+	, opt_vec(optimalSolution(n))
+	, optE(energy(n,this->opt_vec))
+	, optF(merit(n,this->opt_vec))
+	, calls_num(0) { }
 
 int Labs::E(const Bvec &S) {
 	int e = energy(N, S);
-	callsNum++;
+	calls_num++;
 	return e;
 }
 
 double Labs::F(const Bvec &S) {
-	callsNum++;
-	std::unordered_map<Bvec,double>::const_iterator res = memo.find(S);
-	if (res == memo.end()) {
-		double m = merit(N, S);
-		memo.insert(std::make_pair(S,m));
-		return m;
+	calls_num++;
+	if (enable_memo) {
+		std::unordered_map<Bvec,double>::const_iterator res = memo.find(S);
+		if (res == memo.end()) {
+			double m = merit(N, S);
+			memo.insert(std::make_pair(S,m));
+			return m;
+		} else {
+			return res->second;
+		}
 	} else {
-		return res->second;
+		return merit(N, S);
 	}
 }

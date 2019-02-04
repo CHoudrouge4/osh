@@ -9,10 +9,10 @@ class Labs {
 	std::unordered_map<Bvec,double> memo;
 public:
 	int N;
-	const Bvec optVec;
+	const Bvec opt_vec;
 	const int optE;
 	const double optF;
-	long callsNum; // number of calls to E/F
+	long calls_num; // number of calls to E/F
 
 	Labs(int);
 	int E(const Bvec&);

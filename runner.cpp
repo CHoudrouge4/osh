@@ -51,7 +51,7 @@ void Runner::execute(std::vector<Solver*> solvers, int sample_size, int timeout)
 
 	std::vector<std::thread> t;
 
-	std::cout << "Running experiment, size " << sample_size << std::endl;
+	std::cout << "Running experiment, sample size = " << sample_size << std::endl;
 
 	for (uint i = 0; i < solvers.size(); i++) {
 		t.push_back(std::thread(perform_run, d, r, solvers[i]));

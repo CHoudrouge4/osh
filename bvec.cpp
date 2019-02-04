@@ -27,7 +27,7 @@ void Bvec::clear() { for (uint i = 0; i < b.size(); i++) b[i] = false; }
 // Of course these two should be [] operators
 bool Bvec::get(int i) const { return b.at(i); }
 void Bvec::set(int i,bool f) { b[i] = f; }
-void Bvec::flipBit(int i) { b[i] = b[i] xor 1; }
+void Bvec::flip_bit(int i) { b[i] = b[i] xor 1; }
 
 size_t Bvec::hash() const {
 	return std::hash<std::vector<bool>>()(b);
