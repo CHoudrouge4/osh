@@ -18,7 +18,7 @@ int corr(int n, int k, const Bvec &S) {
 
 int energy(int n, const Bvec &S) {
 	int sum = 0;
-	for (int k = 1; k < n - 1; k++) {
+	for (int k = 1; k < n; k++) {
 		int tmp = corr(n, k, S);
 		sum += tmp * tmp;
 	}
