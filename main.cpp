@@ -163,14 +163,32 @@ void test_TS() {
 //	dumpStats(plots,"ts_stat");
 }
 
+void test_MA() {
+	const int n = 41;
+	Labs l(n);
+	const int popsize = 100;
+	double px = 0.8;
+	double pm = 0.3;
+	const int max_itr = 100;
+	MA s(l, popsize, px, pm);
+	s.set_max_itr(max_itr);
+
+	s.run(300000);
+	s.get_optimums();
+	std::cout << "MA F 1: " << l.F(s.get_opt_vec()) << '\n';
+	s.reset();
+
+//	dumpStats(plots,"ts_stat");
+}
+
 int main () {
 	//measure_SA(25);
 	//simpleDemo();
 	//compareMuLambdas(30);
 	//testing_SA();
 	//test_TS();
-	measure_SA(25, 2);
-
+	//measure_SA(25, 2);
+	test_MA();
 	//std::cout << rand() << '\n';
 	//std::cout << rand() << '\n';
 }

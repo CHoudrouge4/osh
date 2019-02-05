@@ -66,16 +66,19 @@ private:
 	Bvec S;
 };
 
-class MA : Solver {
+class MA : public Solver {
 
 public:
-	MA(Labs, const int, const int off_size, const double, const double);
+	MA(Labs, const int, const double, const double);
 	bool run(long long timeout);
 	void get_optimums();
+	void set_max_itr(const int itr);
+
 private:
 
 	double px;
 	double pm;
+	int max_itr = 1000;
 
 	std::vector<Bvec> ppl;
 	std::vector<Bvec> offsprings;

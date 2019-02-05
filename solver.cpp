@@ -43,6 +43,14 @@ void Solver::uni_crossover(Bvec& target, const Bvec& other) {
 	}
 }
 
+void Solver::u_crossover(Bvec& target, const Bvec& first, const Bvec & second) {
+	for (int i = 0; i < labs.N; i++) {
+		int rnd = fair_coin(gen);
+		if (rnd % 2 == 0) target.set(i, first.get(i));
+		else target.set(i, second.get(i));
+	}
+}
+
 double Solver::get_opt() { return opt; }
 Bvec Solver::get_opt_vec() { return opt_vec; }
 

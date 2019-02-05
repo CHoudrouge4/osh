@@ -142,11 +142,11 @@ bool TS::run(long long timeout) {
 	Bvec S_plus = Bvec(labs.N);
 	opt = labs.F(opt_vec);
 	int index = 0;
-	for(int k = 1; k < max_itr; ++k) {
+	for(int k = 1; k <= max_itr; ++k) {
 		double f_plus = std::numeric_limits<double>::min();
 		for(int i = 0; i < labs.N; ++i ) {
 			Bvec neighbor = S;
-			sbm(neighbor, 1);
+			neighbor.flip_bit(i);
 			double f_neighbour = labs.F(neighbor);
 			if(k >= M[i] || f_neighbour > opt) {
 				if(f_neighbour > f_plus) {
@@ -170,10 +170,10 @@ bool TS::run(long long timeout) {
 void TS::set_max_itr(const int itr) { max_itr = itr; }
 void TS::set_S(const Bvec s) { S = s; }
 
-MA::MA(Labs l, const int popsize, const int off_size, const double ppx, const double ppm) : Solver(l) {
+MA::MA(Labs l, const int popsize, const double ppx, const double ppm) : Solver(l) {
 	ppl = std::vector<Bvec> (popsize, Bvec(l.N));
 	ppl_val = std::vector<double>(popsize);
-	offsprings = std::vector<Bvec> (off_size, Bvec(l.N));
+	offsprings = std::vector<Bvec> (popsize, Bvec(l.N));
 	off_val = std::vector<double>(popsize);
 	px = ppx;
 	pm = ppm;
@@ -185,31 +185,29 @@ bool MA::run(long long timeout) {
 		ppl_val[i] = labs.F(ppl[i]);
 	}
 
-	TS local_search(this->labs, 1000);
+	TS local_search(this->labs, max_itr);
 
 	record_begin();
 	while(get_running_time_ms() < timeout) {
 
 		for(size_t i = 0; i < offsprings.size(); ++i) {
 			double rnd = uni_dis_one(gen);
-			if(rnd < px) {
+			if(rnd <= px) {
 				auto parent1 = select_parent();
 				auto parent2 = select_parent();
-				uni_crossover(offsprings[i], parent1);
-				uni_crossover(offsprings[i], parent2);
-			} else {
-				offsprings[i] = select_parent();
-			}
+				u_crossover(offsprings[i], parent1, parent2);
+			} else 	offsprings[i] = select_parent();
+
 			rnd = uni_dis_one(gen);
-			if(rnd < pm) {
-				sbm(offsprings[i]);
-			}
+			if(rnd <= pm) sbm(offsprings[i]);
+
 			local_search.set_S(offsprings[i]);
 			local_search.run(timeout);
 			offsprings[i] = local_search.get_opt_vec();
 			off_val[i] = local_search.get_opt();
 		}
 
+		replace();
 		running_time = get_running_time_ms();
 	}
 
@@ -221,20 +219,24 @@ Bvec MA::select_parent() {
 	return ppl[rnd_index];
 }
 
-
 void MA::replace() {
 	for(size_t i = 0; i < ppl.size(); ++i)
-		if(off_val[i] >= ppl_val[i])
+		if(off_val[i] >= ppl_val[i]) {
 			ppl[i] = offsprings[i];
+			ppl_val[i] = off_val[i];
+		}
 }
 
 void MA::get_optimums() {
 	opt = ppl_val[0];
-	opt_vec = ppl[0];
+	int index = 0;
 	for(size_t i = 1; i < ppl.size(); ++i) {
 		if(opt < ppl_val[i]) {
 			opt = ppl_val[i];
-			opt_vec = ppl[i];
+			index = i;
 		}
 	}
+	opt_vec = ppl[index];
 }
+
+void MA::set_max_itr(const int itr) { max_itr = itr; }
