@@ -7,7 +7,7 @@ struct Runner {
 	Runner();
 
 	// todo add threads
-	void execute(std::vector<Solver*> s, int sample_size, int timeout, std::string dir);
+	void execute(Solver& solver, int threads_n, int sample_size, int timeout, std::string dir);
 
 	// hits number and ratio
 	int hits_n;

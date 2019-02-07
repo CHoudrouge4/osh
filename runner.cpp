@@ -54,7 +54,11 @@ void perform_run(RunnerParams* d, Runner* r, Solver* s) {
 	}
 }
 
-void Runner::execute(std::vector<Solver*> solvers, int sample_size, int timeout, string dirPattern) {
+void Runner::execute( Solver& solver
+					, int threads_n
+					, int sample_size
+					, int timeout
+					, string dirPattern) {
 	exec_durations.clear();
 	hits_n = 0;
 	hits_ratio = 0;
@@ -77,7 +81,11 @@ void Runner::execute(std::vector<Solver*> solvers, int sample_size, int timeout,
 
 	std::cout << "Running experiment, sample size = " << sample_size << std::endl;
 
-	for (uint i = 0; i < solvers.size(); i++) {
+	std::vector<Solver*> solvers(threads_n);
+
+	cout << "Forking all the threads\n";
+	for (int i = 0; i < threads_n; i++) {
+		solvers[i] = solver.clone();
 		t.push_back(std::thread(perform_run, d, r, solvers[i]));
 	}
 	for (auto& th : t) th.join();
@@ -97,4 +105,6 @@ void Runner::execute(std::vector<Solver*> solvers, int sample_size, int timeout,
 		", hits ratio: " << hits_ratio <<
 		", avg t: " << average_t <<
 		"\n";
+
+	for (Solver* s : solvers) free(s);
 }

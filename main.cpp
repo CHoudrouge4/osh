@@ -79,7 +79,6 @@ void simpleDemo() {
 
 	SA s3(l, 0.75, 0.5);
 	s3.set_initial_tempreature(10000);
-	s3.set_cooling_option(false);
 	s3.run(10000);
 	std::cout << "SA F 100: " << l.F(s3.get_opt_vec()) << '\n';
 	plots.push_back(s3.stats);
@@ -105,7 +104,6 @@ void testing_SA() {
 
 	s3.run(10000);
 	s3.set_initial_tempreature(t0);
-	s3.set_cooling_option('l');
 	std::cout << "SA F 1: " << l.F(s3.get_opt_vec()) << '\n';
 	std::cout << "opt seq " <<  s3.get_opt_vec() << '\n';
 	s3.reset();
@@ -132,18 +130,10 @@ void measure_SA(int n, int threads_num) {
 	Runner r;
 
 	vector<SA> sas;
-	for (int i = 0; i < threads_num; i++) {
-		SA sa(Labs(n), 0.75, 0.5);
-		sa.set_initial_tempreature(10000);
-		sa.set_cooling_option(false);
+	SA sa(Labs(n), 0.75, 0.5);
+	sa.set_initial_tempreature(10000);
 
-		sas.push_back(sa);
-	}
-
-	vector<Solver*> solvers(threads_num);
-	for (int i = 0; i < threads_num; i++) solvers[i] = &sas[i];
-
-	r.execute(solvers, 50, 20000, "sa");
+	r.execute(sa, threads_num, 40, 20000, "sa");
 }
 
 void test_TS() {

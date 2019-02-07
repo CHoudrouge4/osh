@@ -47,15 +47,15 @@ public:
 	SA* clone() const;
 
 	bool run(long long timeout);
-	void set_cooling_option(bool is_exp);
+	void set_cooling_option(bool is_lin);
 	void set_initial_tempreature(double init_temp);
 private:
 
-	const double alpha;        // cooling exponentiatl constant
-	const double mu;           // cooling linear constant
-	double t0 = 1000;    // initial temprature
+	double alpha; // cooling exponential constant
+	double mu; // cooling linear constant
+	double t0 = 1000; // initial temprature
 	// it must be an enum, but for now we only have 2 options
-	bool exp_cooling = true; // otherwise linear
+	bool linear_cooling = true; // otherwise exponential
 };
 
 

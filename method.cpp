@@ -90,7 +90,9 @@ SA::SA(Labs labs, const double alpha, const double mu) :
 	assert(mu > 0 and  mu < 1);
 }
 
-SA::SA(const SA& s) : SA(s.labs, s.alpha, s.mu) { }
+SA::SA(const SA& s) : SA(s.labs, s.alpha, s.mu) {
+	t0 = s.t0;
+}
 
 SA* SA::clone() const { return new SA(*this); }
 
@@ -125,15 +127,15 @@ bool SA::run(long long timeout) {
 		if (get_running_time_ms() > timeout) { running_time = get_running_time_ms(); return false; }
 
 		// Cooling
-		if (exp_cooling) {
-			t = t * std::pow(alpha, i);
-		} else {
+		if (linear_cooling) {
 			t = t - mu * i;
+		} else {
+			t = t * std::pow(alpha, i);
 		}
 	}
 }
 
-void SA::set_cooling_option(bool is_exp) { exp_cooling = is_exp; }
+void SA::set_cooling_option(bool is_lin) { linear_cooling = is_lin; }
 void SA::set_initial_tempreature(double init_temp) { t0 = init_temp; }
 
 
@@ -145,7 +147,7 @@ TS::TS(Labs l, const int max_itr) : Solver(l), max_itr(max_itr), S(labs.N) {
 	sbm(S);
 }
 
-TS::TS(const TS& s) : TS(s.labs, s.max_itr) { }
+TS::TS(const TS& s) : TS(s.labs, s.max_itr) { } // TODO copy all params
 TS* TS::clone() const { return new TS(*this); }
 
 bool TS::run(long long timeout) {
@@ -197,7 +199,7 @@ MA::MA(Labs l, const int popsize, const double px, const double pm)
 	off_val = std::vector<double>(popsize);
 }
 
-MA::MA(const MA& s) : MA(s.labs, s.popsize, s.px, s.pm) { }
+MA::MA(const MA& s) : MA(s.labs, s.popsize, s.px, s.pm) { } // TODO copy all params
 MA* MA::clone() const { return new MA(*this); }
 
 bool MA::run(long long timeout) {
