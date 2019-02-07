@@ -10,7 +10,9 @@ using statItem = std::tuple<int64_t, long, double>;
 long long get_time_mcs();
 
 struct Solver {
-	Solver(Labs);
+	Solver(const Labs);
+
+	virtual Solver* clone() const = 0;
 
 	// Optimal f
 	double get_opt();

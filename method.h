@@ -14,6 +14,9 @@ class OnePlusOne : public Solver {
 
 public:
 	OnePlusOne(Labs);
+	OnePlusOne(const OnePlusOne&);
+	OnePlusOne* clone() const;
+
 	bool run(long long timeout);
 };
 
@@ -30,6 +33,8 @@ class MuLambda : public Solver {
 
 public:
 	MuLambda(Labs, int mu, int lambda, double crossover_prob);
+	MuLambda(const MuLambda&);
+	MuLambda* clone() const;
 	bool run(long long timeout);
 };
 
@@ -38,6 +43,8 @@ class SA : public Solver {
 
 public:
 	SA(Labs, const double alpha, const double mu);
+	SA(const SA&);
+	SA* clone() const;
 
 	bool run(long long timeout);
 	void set_cooling_option(bool is_exp);
@@ -56,29 +63,35 @@ class TS : public Solver {
 
 public:
 	TS(Labs, const int itr);
+	TS(const TS&);
+	TS* clone() const;
 
 	bool run(long long timeout);
 	void set_max_itr(const int);
 	void set_S(const Bvec s);
 private:
-	int max_itr;
-	std::vector<int> M;
-	Bvec S;
+	int max_itr; // TODO Use timeout ?
+	std::vector<int> M; // TODO descriptive name
+	Bvec S; // TODO Descriptive name
 };
 
 class MA : public Solver {
 
 public:
 	MA(Labs, const int, const double, const double);
+	MA(const MA&);
+	MA* clone() const;
+
 	bool run(long long timeout);
 	void get_optimums();
 	void set_max_itr(const int itr);
 
 private:
 
-	double px;
-	double pm;
-	int max_itr = 1000;
+	const int popsize;
+	const double px;
+	const double pm;
+	int max_itr = 1000; // TODO use timeout
 
 	std::vector<Bvec> ppl;
 	std::vector<Bvec> offsprings;

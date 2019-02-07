@@ -12,6 +12,8 @@
 
 
 OnePlusOne::OnePlusOne(Labs labs): Solver(labs), tmp_opt(labs.N) {}
+OnePlusOne::OnePlusOne(const OnePlusOne& s): Solver(s), tmp_opt(s.labs.N) { }
+OnePlusOne* OnePlusOne::clone() const { return new OnePlusOne(*this); }
 
 bool OnePlusOne::run(long long timeout) {
 	sbm(opt_vec);
@@ -44,6 +46,11 @@ MuLambda::MuLambda (Labs labs, int mu, int lambda, double crossover_prob)
 	, uni_dis_mu(std::uniform_int_distribution<int>(0, mu-1)) {
 	ppl = std::vector<Bvec>(mu+lambda, Bvec(labs.N));
 }
+
+MuLambda::MuLambda(const MuLambda& s)
+	: MuLambda(s.labs, s.mu, s.lambda, s.crossover_prob) { }
+
+MuLambda* MuLambda::clone() const { return new MuLambda(*this); }
 
 bool MuLambda::run(long long timeout) {
 	for (int i = 0; i < mu; i++) { sbm(ppl[i]); }
@@ -82,6 +89,10 @@ SA::SA(Labs labs, const double alpha, const double mu) :
 	assert(alpha > 0 and alpha < 1);
 	assert(mu > 0 and  mu < 1);
 }
+
+SA::SA(const SA& s) : SA(s.labs, s.alpha, s.mu) { }
+
+SA* SA::clone() const { return new SA(*this); }
 
 bool SA::run(long long timeout) {
 	double t = t0;
@@ -125,15 +136,17 @@ bool SA::run(long long timeout) {
 void SA::set_cooling_option(bool is_exp) { exp_cooling = is_exp; }
 void SA::set_initial_tempreature(double init_temp) { t0 = init_temp; }
 
-TS::TS(Labs l, const int itr) :
-	Solver(l), S(labs.N) {
-	this->max_itr = itr;
+
+
+TS::TS(Labs l, const int max_itr) : Solver(l), max_itr(max_itr), S(labs.N) {
 	assert(max_itr >= 1);
-	assert(max_itr == itr);
 	M = std::vector<int>(l.N, 0);
 	opt_vec = Bvec(labs.N);
 	sbm(S);
 }
+
+TS::TS(const TS& s) : TS(s.labs, s.max_itr) { }
+TS* TS::clone() const { return new TS(*this); }
 
 bool TS::run(long long timeout) {
 
@@ -172,14 +185,20 @@ bool TS::run(long long timeout) {
 void TS::set_max_itr(const int itr) { max_itr = itr; }
 void TS::set_S(const Bvec s) { S = s; }
 
-MA::MA(Labs l, const int popsize, const double ppx, const double ppm) : Solver(l) {
+
+MA::MA(Labs l, const int popsize, const double px, const double pm)
+	: Solver(l)
+	, popsize(popsize)
+	, px(px)
+	, pm(pm) {
 	ppl = std::vector<Bvec> (popsize, Bvec(l.N));
 	ppl_val = std::vector<double>(popsize);
 	offsprings = std::vector<Bvec> (popsize, Bvec(l.N));
 	off_val = std::vector<double>(popsize);
-	px = ppx;
-	pm = ppm;
 }
+
+MA::MA(const MA& s) : MA(s.labs, s.popsize, s.px, s.pm) { }
+MA* MA::clone() const { return new MA(*this); }
 
 bool MA::run(long long timeout) {
 	for(size_t i = 0; i < ppl.size(); ++i) {
@@ -198,7 +217,7 @@ bool MA::run(long long timeout) {
 				auto parent1 = select_parent();
 				auto parent2 = select_parent();
 				u_crossover(offsprings[i], parent1, parent2);
-			} else 	offsprings[i] = select_parent();
+			} else		offsprings[i] = select_parent();
 
 			rnd = uni_dis_one(gen);
 			if(rnd <= pm) sbm(offsprings[i]);
