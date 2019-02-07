@@ -7,6 +7,8 @@
 
 using statItem = std::tuple<int64_t, long, double>;
 
+long long get_time_mcs();
+
 struct Solver {
 	Solver(Labs);
 

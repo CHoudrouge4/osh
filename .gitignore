@@ -34,6 +34,6 @@
 *.app
 
 # Data
-plotData/*.png
-plotData/*.csv
-plotData/*.svg
+!plotData/gnuplotCmd.cmd
+!plotData/plot.sh
+plotData/*

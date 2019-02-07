@@ -24,12 +24,12 @@ bool OnePlusOne::run(long long timeout) {
 		if(labs.F(tmp_opt) > labs.F(opt_vec)) {
 			opt_vec = tmp_opt;
 			opt = labs.F(opt_vec);
+			record_current();
 		}
 		else tmp_opt = opt_vec;
 
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
 		if (get_running_time_ms() > timeout) { running_time = get_running_time_ms(); return false; }
-		if (i % 100 == 0) record_current();
 	}
 }
 
@@ -65,10 +65,13 @@ bool MuLambda::run(long long timeout) {
 				  [this](Bvec a, Bvec b) { return labs.F(a) > labs.F(b); });
 
 		opt_vec = ppl[0];
-		opt = labs.F(opt_vec);
+		int opt1 = labs.F(opt_vec);
+		if (opt1 > opt) {
+			opt = opt1;
+			record_current();
+		}
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
 		if (get_running_time_ms() > timeout) { running_time = get_running_time_ms(); return false; }
-		if (i % 10 == 0) record_current();
 	}
 }
 
@@ -107,7 +110,6 @@ bool SA::run(long long timeout) {
 			if(prob < acc_prob) s = neighbor;
 		}
 
-		if (i % 150 == 0) record_current(); // we don't want to use it too often
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
 		if (get_running_time_ms() > timeout) { running_time = get_running_time_ms(); return false; }
 

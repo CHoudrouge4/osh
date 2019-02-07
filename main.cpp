@@ -7,7 +7,6 @@
 
 using namespace std;
 
-// Move it elsewhere
 void dumpStats(vector<vector<statItem>> plots, string prefix) {
 	for (uint i = 0; i < plots.size(); i++) {
 		ofstream outS;
@@ -144,13 +143,7 @@ void measure_SA(int n, int threads_num) {
 	vector<Solver*> solvers(threads_num);
 	for (int i = 0; i < threads_num; i++) solvers[i] = &sas[i];
 
-	r.execute(solvers, 30, 10000);
-
-	cout << "Hits: " << r.hits_n <<
-		", hits ratio: " << r.hits_ratio <<
-		", avg t: " << r.average_t <<
-		"\n";
-	dumpStats(r.stats, "sa_runner");
+	r.execute(solvers, 50, 20000, "sa");
 }
 
 void test_TS() {
@@ -188,7 +181,9 @@ int main () {
 	//testing_SA();
 	//test_TS();
 	//measure_SA(25, 2);
-	test_MA();
+	//test_MA();
+	measure_SA(22, 2);
+
 	//std::cout << rand() << '\n';
 	//std::cout << rand() << '\n';
 }
