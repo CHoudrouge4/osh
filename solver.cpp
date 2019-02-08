@@ -93,7 +93,6 @@ void Solver::construct_c_s(const Bvec &S) {
 }
 
 double Solver::flip_value(const Bvec &S, int i) {
-	std::cout << S << '\n';
 	int f = 0;
 	for(int p = 0; p < labs.N - 1; ++p) {
 		int v = c_s[p];
