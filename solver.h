@@ -34,7 +34,7 @@ struct Solver {
 	void record_current();
 	// Statistics. Each element is (time,iteration,value)
 	std::vector<statItem> stats;
-	// Running time in ms.
+	// Total algorithm running time in ms.
 	long long running_time;
 
 protected:

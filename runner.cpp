@@ -100,7 +100,6 @@ void Runner::execute( Solver& solver
 		average_t /= hits_n;
 	}
 
-	// todo dump this info to the file
 	cout << "Hits: " << hits_n <<
 		", hits ratio: " << hits_ratio <<
 		", avg t: " << average_t <<

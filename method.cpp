@@ -31,7 +31,10 @@ bool OnePlusOne::run(long long timeout) {
 		else tmp_opt = opt_vec;
 
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
-		if (get_running_time_ms() > timeout) { running_time = get_running_time_ms(); return false; }
+		if (i % 50 == 0 && get_running_time_ms() > timeout) {
+			running_time = get_running_time_ms();
+			return false;
+		}
 	}
 }
 
@@ -77,8 +80,12 @@ bool MuLambda::run(long long timeout) {
 			opt = opt1;
 			record_current();
 		}
+
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
-		if (get_running_time_ms() > timeout) { running_time = get_running_time_ms(); return false; }
+		if (i % 50 == 0 && get_running_time_ms() > timeout) {
+			running_time = get_running_time_ms();
+			return false;
+		}
 	}
 }
 
@@ -124,7 +131,10 @@ bool SA::run(long long timeout) {
 		}
 
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
-		if (get_running_time_ms() > timeout) { running_time = get_running_time_ms(); return false; }
+		if (i % 50 == 0 && get_running_time_ms() > timeout) {
+			running_time = get_running_time_ms();
+			return false;
+		}
 
 		// Cooling
 		if (linear_cooling) {
@@ -155,12 +165,12 @@ TS::TS(const TS& s) : TS(s.labs, s.max_itr) {
 TS* TS::clone() const { return new TS(*this); }
 
 bool TS::run(long long timeout) {
-
-
 	const int min_tabu = max_itr/10;
 	const int extra_tabu = max_itr/50;
 	std::uniform_int_distribution<int> urand(0, std::max(extra_tabu - 1, 1));
 	record_begin();
+	// TODO don't check running time every iteration
+	// TODO use record_current
 	while(get_running_time_ms() < timeout) {
 		Bvec opt_vec_current = S;
 		double opt_current = labs.F(opt_vec_current);
@@ -235,6 +245,8 @@ bool MA::run(long long timeout) {
 	TS local_search(this->labs, max_itr);
 
 	record_begin();
+	// TODO don't check running time every iteration
+	// TODO use record_current
 	while(get_running_time_ms() < timeout) {
 
 		for(size_t i = 0; i < offsprings.size(); ++i) {
@@ -243,7 +255,7 @@ bool MA::run(long long timeout) {
 				auto parent1 = select_parent();
 				auto parent2 = select_parent();
 				uni_crossover(offsprings[i], parent1, parent2);
-			} else		offsprings[i] = select_parent();
+			} else offsprings[i] = select_parent();
 
 			rnd = uni_dis_one(gen);
 			if(rnd <= pm) sbm(offsprings[i]);
