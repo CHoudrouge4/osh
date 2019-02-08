@@ -70,9 +70,9 @@ public:
 	void set_max_itr(const int);
 	void set_S(const Bvec s);
 private:
-	int max_itr; // TODO Use timeout ? done
-	std::vector<int> M; // it is suggested by the paper
-	Bvec S; // TODO Descriptive name ? maybe current sequence !!
+	int max_itr; // TODO Use timeout
+	std::vector<int> M; // Tenure table, holds tabu data
+	Bvec S; // Temporary vector
 };
 
 class MA : public Solver {

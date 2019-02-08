@@ -151,7 +151,7 @@ TS::TS(const TS& s) : TS(s.labs, s.max_itr) {
 	this->M = s.M;
 	this->opt_vec  = s.opt_vec;
 	this->S = s.S;
-} // TODO copy all params
+}
 TS* TS::clone() const { return new TS(*this); }
 
 bool TS::run(long long timeout) {
@@ -222,7 +222,7 @@ MA::MA(const MA& s) : MA(s.labs, s.popsize, s.px, s.pm) {
 	this->offsprings = s.offsprings;
 	this->ppl_val = s.ppl_val;
 	this->off_val = s.off_val;
-} // TODO copy all params
+}
 
 MA* MA::clone() const { return new MA(*this); }
 
