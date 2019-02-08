@@ -137,9 +137,9 @@ void measure_SA(int n, int threads_num) {
 }
 
 void test_TS() {
-	Labs l(11);
+	Labs l(29);
 	TS s(l, 10);
-	s.run(10);
+	s.run(10000);
 	std::cout << "TS F 1: " << l.F(s.get_opt_vec()) << '\n';
 	s.reset();
 
@@ -169,10 +169,10 @@ int main () {
 	//simpleDemo();
 	//compareMuLambdas(30);
 	//testing_SA();
-	//test_TS();
+	test_TS();
 	//measure_SA(25, 2);
 	//test_MA();
-	measure_SA(22, 2);
+	//measure_SA(22, 2);
 
 	//std::cout << rand() << '\n';
 	//std::cout << rand() << '\n';

@@ -152,34 +152,48 @@ TS* TS::clone() const { return new TS(*this); }
 
 bool TS::run(long long timeout) {
 
+
 	const int min_tabu = max_itr/10;
 	const int extra_tabu = max_itr/50;
 	std::uniform_int_distribution<int> urand(0, std::max(extra_tabu - 1, 1));
-	opt_vec = S;
-	Bvec S_plus = Bvec(labs.N);
-	opt = labs.F(opt_vec);
-	int index = 0;
-	for(int k = 1; k <= max_itr; ++k) {
-		double f_plus = std::numeric_limits<double>::min();
-		for(int i = 0; i < labs.N; ++i ) {
-			Bvec neighbor = S;
-			neighbor.flip_bit(i);
-			double f_neighbour = labs.F(neighbor);
-			if(k >= M[i] || f_neighbour > opt) {
-				if(f_neighbour > f_plus) {
-					f_plus = f_neighbour;
-					S_plus = neighbor;
-					index = i;
+	record_begin();
+	while(get_running_time_ms() < timeout) {
+		Bvec opt_vec_current = S;
+		double opt_current = labs.F(opt_vec_current);
+		Bvec S_plus = Bvec(labs.N);
+		int index = 0;
+		for(int k = 1; k <= max_itr; ++k) {
+			double f_plus = std::numeric_limits<double>::min();
+			for(int i = 0; i < labs.N; ++i) {
+				Bvec neighbor = S;
+				neighbor.flip_bit(i);
+				double f_neighbour = labs.F(neighbor);
+				if(k >= M[i] || f_neighbour > opt_current) {
+					if(f_neighbour > f_plus) {
+						f_plus = f_neighbour;
+						S_plus = neighbor;
+						index = i;
+					}
 				}
+			}
+
+			S = S_plus;
+			M[index] = k + min_tabu + urand(gen);
+			if(f_plus > opt_current) {
+				opt_vec_current = S_plus;
+				opt_current = f_plus;
 			}
 		}
 
-		S = S_plus;
-		M[index] = k + min_tabu + urand(gen);
-		if(f_plus > opt) {
-			opt_vec = S_plus;
-			opt = f_plus;
+	//	opt = std::max(opt, opt_current);
+		if(opt_current > opt) {
+			opt = opt_current;
+			opt_vec = opt_vec_current;
 		}
+
+		running_time = get_running_time_ms();
+		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
+	//	if (get_running_time_ms() > timeout) { running_time = get_running_time_ms(); return false; }
 	}
 	return false;
 }
