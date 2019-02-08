@@ -28,10 +28,12 @@ struct RunnerParams {
 	int jobs_done;
 	int sample_size;
 	int timeout;
-	string report_dir;
+	string run_dir;
+	int* hits_n;
+	std::vector<long long>* exec_durations;
 };
 
-void perform_run(RunnerParams* d, Runner* r, Solver* s) {
+void perform_run(RunnerParams* d, Solver* s) {
 	int timeout = d->timeout;
 	while (true) {
 		d->mtx.lock();
@@ -45,65 +47,86 @@ void perform_run(RunnerParams* d, Runner* r, Solver* s) {
 
 		d->mtx.lock();
 		if (hit) {
-			r->hits_n++;
-			r->exec_durations.push_back(s->running_time);
+			(*d->hits_n)++;
+			d->exec_durations->push_back(s->running_time);
 		}
-		dump_stats(s->stats, d->report_dir, i);
+		dump_stats(s->stats, d->run_dir, i);
 		s->reset();
 		d->mtx.unlock();
 	}
 }
 
-void Runner::execute( Solver& solver
+void Runner::execute( std::vector<std::pair<Solver*,long long>> solvers
 					, int threads_n
 					, int sample_size
-					, int timeout
-					, string dirPattern) {
-	exec_durations.clear();
-	hits_n = 0;
-	hits_ratio = 0;
-	average_t = 0;
+					, string dir_pattern) {
 
 	long long time = get_time_mcs() / 1000;
-	string report_dir = "plotData/" + dirPattern + "_" + to_string(time);
+	string experiment_dir = dir_pattern + "_" + to_string(time);
+	system(("mkdir -p " + experiment_dir).c_str());
 
-	system(("mkdir -p " + report_dir).c_str());
+	for (uint i = 0; i < solvers.size(); i++) {
+		Solver* solver = get<0>(solvers[i]);
+		long long timeout = get<1>(solvers[i]);
 
-	RunnerParams common;
-	common.jobs_done = 0;
-	common.sample_size = sample_size;
-	common.timeout = timeout;
-	common.report_dir = report_dir;
-	RunnerParams* d = &common;
-	Runner* r = this;
+		std::cout << "Processing " + solver->get_name() +
+			", n = " + to_string(solver->get_N()) + "\n";
 
-	std::vector<std::thread> t;
+		string run_dir =
+			experiment_dir + "/" + solver->get_name() + "/n_" +
+			to_string(solver->get_N());
+		system(("mkdir -p " + run_dir).c_str());
 
-	std::cout << "Running experiment, sample size = " << sample_size << std::endl;
+		int hits_n = 0;
+		double hits_ratio = 0;
+		int average_t = 0;
+		std::vector<long long> exec_durations;
 
-	std::vector<Solver*> solvers(threads_n);
+		RunnerParams common;
+		common.jobs_done = 0;
+		common.sample_size = sample_size;
+		common.timeout = timeout;
+		common.run_dir = run_dir;
+		common.exec_durations = &exec_durations;
+		common.hits_n = &hits_n;
+		RunnerParams* d = &common;
 
-	cout << "Forking all the threads\n";
-	for (int i = 0; i < threads_n; i++) {
-		solvers[i] = solver.clone();
-		t.push_back(std::thread(perform_run, d, r, solvers[i]));
-	}
-	for (auto& th : t) th.join();
+		std::vector<std::thread> t;
 
-	std::cout << std::endl;
+		std::cout << "Running experiment, sample size = " << sample_size << std::endl;
 
-	if (hits_n != 0) {
-		hits_ratio = (double) hits_n / ((double) sample_size);
-		for (uint i = 0; i < exec_durations.size(); i++) {
-			average_t += exec_durations[i];
+		std::vector<Solver*> solver_clones(threads_n);
+
+		cout << "Forking all the threads\n";
+		for (int j = 0; j < threads_n; j++) {
+			solver_clones[j] = solver->clone();
+			t.push_back(std::thread(perform_run, d, solver_clones[j]));
 		}
-		average_t /= hits_n;
+		for (auto& th : t) th.join();
+		for (Solver* s : solver_clones) free(s);
+
+		std::cout << std::endl;
+
+		if (hits_n != 0) {
+			hits_ratio = (double) hits_n / ((double) sample_size);
+			for (uint i = 0; i < exec_durations.size(); i++) {
+				average_t += exec_durations[i];
+			}
+			average_t /= hits_n;
+		}
+
+		ofstream outS;
+		char buffer[50]; sprintf(buffer, "%s/summary.csv", run_dir.c_str());
+		outS.open(buffer);
+
+		std::string summary =
+			to_string(timeout) + "," +
+			to_string(hits_n) + "," +
+			to_string(hits_ratio) + "," +
+			to_string(average_t) + "\n";
+		std::cout << "timeout/hitsN/hitsRatio/avgT:\n" << summary;
+		outS << summary;
+		outS.close();
+
 	}
-
-	cout << "Hits: " << hits_n <<
-		", hits ratio: " << hits_ratio <<
-		", avg t: " << average_t <<
-		"\n";
-
-	for (Solver* s : solvers) free(s);
 }

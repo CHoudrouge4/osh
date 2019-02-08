@@ -129,11 +129,13 @@ void testing_SA() {
 void measure_SA(int n, int threads_num) {
 	Runner r;
 
-	vector<SA> sas;
 	SA sa(Labs(n), 0.75, 0.5);
 	sa.set_initial_tempreature(10000);
 
-	r.execute(sa, threads_num, 40, 20000, "sa");
+	vector<pair<Solver*, long long>> solvers;
+	solvers.push_back(make_pair(&sa,20000));
+
+	r.execute(solvers, threads_num, 40, "plotData/measure_sa");
 }
 
 void test_TS() {
@@ -164,15 +166,34 @@ void test_MA() {
 //	dumpStats(plots,"ts_stat");
 }
 
+void predict_timeout_sa() {
+	int threads_num = 2;
+	int sample_size = 40;
+	int timeout = 30000;
+	int nLo = 15;
+	int nHi = 27;
+	Runner r;
+
+	vector<pair<Solver*, long long>> solvers;
+	for (int n = nLo; n < nHi; n++) {
+		SA* sa = new SA(Labs(n), 0.75, 0.5);
+		sa->set_initial_tempreature(10000);
+		solvers.push_back(make_pair(sa,timeout));
+	}
+
+	r.execute(solvers, threads_num, sample_size, "plotData/timeout_estimation_sa");
+
+	for (auto x : solvers) free(get<0>(x));
+}
+
 int main () {
 	//measure_SA(25);
 	//simpleDemo();
 	//compareMuLambdas(30);
 	//testing_SA();
-	test_TS();
+	//test_TS();
 	//measure_SA(25, 2);
-	//test_MA();
-	//measure_SA(22, 2);
+	predict_timeout_sa();
 
 	//std::cout << rand() << '\n';
 	//std::cout << rand() << '\n';

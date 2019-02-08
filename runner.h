@@ -6,14 +6,9 @@
 struct Runner {
 	Runner();
 
-	// todo add threads
-	void execute(Solver& solver, int threads_n, int sample_size, int timeout, std::string dir);
-
-	// hits number and ratio
-	int hits_n;
-	double hits_ratio;
-	// average running time
-	int average_t;
-	// execution durations
-	std::vector<long long> exec_durations;
+	// solvers is a list of <solver,timeout>
+	void execute(std::vector<std::pair<Solver*,long long>> solvers
+				  , int threads_n
+				  , int sample_size
+				  , std::string dir_pattern);
 };

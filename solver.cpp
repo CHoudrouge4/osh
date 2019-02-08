@@ -44,6 +44,7 @@ void Solver::uni_crossover(Bvec& target, const Bvec& first, const Bvec & second)
 	}
 }
 
+int Solver::get_N() { return labs.N; }
 double Solver::get_opt() { return opt; }
 Bvec Solver::get_opt_vec() { return opt_vec; }
 

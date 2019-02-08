@@ -17,6 +17,8 @@ public:
 	OnePlusOne(const OnePlusOne&);
 	OnePlusOne* clone() const;
 
+	std::string get_name() const;
+
 	bool run(long long timeout);
 };
 
@@ -35,6 +37,9 @@ public:
 	MuLambda(Labs, int mu, int lambda, double crossover_prob);
 	MuLambda(const MuLambda&);
 	MuLambda* clone() const;
+
+	std::string get_name() const;
+
 	bool run(long long timeout);
 };
 
@@ -46,7 +51,10 @@ public:
 	SA(const SA&);
 	SA* clone() const;
 
+	std::string get_name() const;
+
 	bool run(long long timeout);
+
 	void set_cooling_option(bool is_lin);
 	void set_initial_tempreature(double init_temp);
 private:
@@ -66,7 +74,10 @@ public:
 	TS(const TS&);
 	TS* clone() const;
 
+	std::string get_name() const;
+
 	bool run(long long timeout);
+
 	void set_max_itr(const int);
 	void set_S(const Bvec s);
 private:
@@ -81,6 +92,8 @@ public:
 	MA(Labs, const int, const double, const double);
 	MA(const MA&);
 	MA* clone() const;
+
+	std::string get_name() const;
 
 	bool run(long long timeout);
 	void get_optimums();

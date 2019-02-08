@@ -14,6 +14,7 @@
 OnePlusOne::OnePlusOne(Labs labs): Solver(labs), tmp_opt(labs.N) {}
 OnePlusOne::OnePlusOne(const OnePlusOne& s): Solver(s), tmp_opt(s.labs.N) { }
 OnePlusOne* OnePlusOne::clone() const { return new OnePlusOne(*this); }
+std::string OnePlusOne::get_name() const { return "one_plus_one"; }
 
 bool OnePlusOne::run(long long timeout) {
 	sbm(opt_vec);
@@ -54,6 +55,8 @@ MuLambda::MuLambda(const MuLambda& s)
 	: MuLambda(s.labs, s.mu, s.lambda, s.crossover_prob) { }
 
 MuLambda* MuLambda::clone() const { return new MuLambda(*this); }
+
+std::string MuLambda::get_name() const { return "mu_lambda"; }
 
 bool MuLambda::run(long long timeout) {
 	for (int i = 0; i < mu; i++) { sbm(ppl[i]); }
@@ -103,6 +106,8 @@ SA::SA(const SA& s) : SA(s.labs, s.alpha, s.mu) {
 
 SA* SA::clone() const { return new SA(*this); }
 
+std::string SA::get_name() const { return "sa"; }
+
 bool SA::run(long long timeout) {
 	double t = t0;
 	Bvec s(labs.N);
@@ -149,7 +154,6 @@ void SA::set_cooling_option(bool is_lin) { linear_cooling = is_lin; }
 void SA::set_initial_tempreature(double init_temp) { t0 = init_temp; }
 
 
-
 TS::TS(Labs l, const int max_itr) : Solver(l), max_itr(max_itr), S(labs.N) {
 	assert(max_itr >= 1);
 	M = std::vector<int>(l.N, 0);
@@ -163,6 +167,7 @@ TS::TS(const TS& s) : TS(s.labs, s.max_itr) {
 	this->S = s.S;
 }
 TS* TS::clone() const { return new TS(*this); }
+std::string TS::get_name() const { return "tabu"; }
 
 bool TS::run(long long timeout) {
 	const int min_tabu = max_itr/10;
@@ -235,6 +240,8 @@ MA::MA(const MA& s) : MA(s.labs, s.popsize, s.px, s.pm) {
 }
 
 MA* MA::clone() const { return new MA(*this); }
+
+std::string MA::get_name() const { return "ma"; }
 
 bool MA::run(long long timeout) {
 	for(size_t i = 0; i < ppl.size(); ++i) {

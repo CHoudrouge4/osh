@@ -14,19 +14,19 @@ struct Solver {
 
 	virtual Solver* clone() const = 0;
 
+	// Get instance size;
+	int get_N();
 	// Optimal f
 	double get_opt();
 	// Optimal vector
 	Bvec get_opt_vec();
+	// Return a descriptive algo name
+	virtual std::string get_name() const = 0;
 
 	// Accepts time in ms, returns true if it found the optimum (or
 	// false for "timed out").
 	virtual bool run(long long timeout) = 0;
 	void reset();
-
-	void sbm(Bvec&);
-	void sbm(Bvec&, int);
-	void uni_crossover(Bvec&, const Bvec&, const Bvec&);
 
 	// Re-initialise stats variables
 	void record_begin();
@@ -36,6 +36,10 @@ struct Solver {
 	std::vector<statItem> stats;
 	// Total algorithm running time in ms.
 	long long running_time;
+
+	void sbm(Bvec&);
+	void sbm(Bvec&, int);
+	void uni_crossover(Bvec&, const Bvec&, const Bvec&);
 
 protected:
 	Labs labs; // labs instance we work on
