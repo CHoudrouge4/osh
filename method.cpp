@@ -61,7 +61,7 @@ bool MuLambda::run(long long timeout) {
 		for (int j = 0; j < lambda; j++) {
 			if (uni_dis_one(gen) < crossover_prob) {
 				ppl[mu+j] = ppl[uni_dis_mu(gen)];
-				uni_crossover(ppl[mu+j], ppl[uni_dis_mu(gen)]);
+				uni_crossover(ppl[mu+j], ppl[mu+j], ppl[uni_dis_mu(gen)]);
 			} else {
 				ppl[mu+j] = ppl[uni_dis_mu(gen)];
 				sbm(ppl[mu+j]);
@@ -242,7 +242,7 @@ bool MA::run(long long timeout) {
 			if(rnd <= px) {
 				auto parent1 = select_parent();
 				auto parent2 = select_parent();
-				u_crossover(offsprings[i], parent1, parent2);
+				uni_crossover(offsprings[i], parent1, parent2);
 			} else		offsprings[i] = select_parent();
 
 			rnd = uni_dis_one(gen);

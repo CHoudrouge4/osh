@@ -26,8 +26,7 @@ struct Solver {
 
 	void sbm(Bvec&);
 	void sbm(Bvec&, int);
-	void uni_crossover(Bvec&, const Bvec&);
-	void u_crossover(Bvec&, const Bvec&, const Bvec&);
+	void uni_crossover(Bvec&, const Bvec&, const Bvec&);
 
 	// Re-initialise stats variables
 	void record_begin();
