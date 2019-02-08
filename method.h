@@ -80,6 +80,7 @@ public:
 
 	void set_max_itr(const int);
 	void set_S(const Bvec s);
+	void test_flip_val();
 private:
 	int max_itr; // TODO Use timeout
 	std::vector<int> M; // Tenure table, holds tabu data

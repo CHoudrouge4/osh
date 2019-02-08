@@ -11,14 +11,14 @@
 
 bool enable_memo = false;
 
-int corr(int n, int k, const Bvec &S) {
+int Labs::corr(int n, int k, const Bvec &S) {
 	int sum = 0;
 	for (int i = 0; i < n - k; i++)
 		sum += (((S.get(i) xor S.get(i + k)) == 0) ? 1 : -1);
 	return sum;
 }
 
-int energy(int n, const Bvec &S) {
+int Labs::energy(int n, const Bvec &S) {
 	int sum = 0;
 	for (int k = 1; k < n; k++) {
 		int tmp = corr(n, k, S);
@@ -27,7 +27,7 @@ int energy(int n, const Bvec &S) {
 	return sum;
 }
 
-double merit (int n, const Bvec &S) {
+double Labs::merit (int n, const Bvec &S) {
 	return ((double) (n * n)) / (2.0 * ((double) energy(n, S)));
 }
 

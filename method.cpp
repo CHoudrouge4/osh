@@ -306,3 +306,18 @@ void MA::get_optimums() {
 }
 
 void MA::set_max_itr(const int itr) { max_itr = itr; }
+
+void TS::test_flip_val() {
+	Bvec s(labs.N);
+	sbm(s);
+	std::cout << labs.F(s) << '\n';
+	construct_tau(s);
+	construct_c_s(s);
+
+	std::cout << s << '\n';
+	s.flip_bit(2);
+	std::cout << s << '\n';
+	std::cout << flip_value(s, 2) << '\n';
+	std::cout << labs.F(s) << '\n';
+	//s.flip_bit(2);
+}

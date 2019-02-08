@@ -17,6 +17,8 @@ Solver::Solver (const Labs l): labs(l), opt_vec(l.N) {
 	uni_dis_N = std::uniform_int_distribution<int>(0, l.N-1);
 	uni_dis_one = std::uniform_real_distribution<double>(0, 1);
 	fair_coin = std::uniform_int_distribution<int> (0, 1);
+	tau = std::vector<std::vector<int>> (l.N - 1, std::vector<int>(l.N - 1));
+	c_s = std::vector<int>(l.N - 1);
 }
 
 void Solver::reset() {
@@ -72,4 +74,33 @@ void Solver::record_begin() {
 void Solver::record_current() {
 	long long cur_time = get_running_time_mcs();
 	stats.push_back(std::make_tuple(cur_time, labs.calls_num, opt));
+}
+
+void Solver::construct_tau(const Bvec &S) {
+	for(int i = 0; i < labs.N - 1; ++i) {
+		int row_size = labs.N - 1 - i;
+		//tau[i] = std::vector<int>(row_size);
+		for(int j = 1; j <= row_size; ++j) {
+			tau[i][j - 1] = (S.get(j - 1)? 1: -1) * (S.get(i + j) ? 1 : -1);
+		}
+	}
+}
+
+void Solver::construct_c_s(const Bvec &S) {
+	for(int i = 0; i < labs.N - 1; i++) {
+		c_s[i] = labs.corr(S.size(), i + 1, S);
+	}
+}
+
+double Solver::flip_value(const Bvec &S, int i) {
+	std::cout << S << '\n';
+	int f = 0;
+	for(int p = 0; p < labs.N - 1; ++p) {
+		int v = c_s[p];
+		if(p <= labs.N - i) v = v - 2 * tau[p][i];
+		if(p < i) v = v - 2  * tau[p][i - 1 -  p ];
+		f = f + v * v;
+	}
+	labs.calls_num++;
+	return (labs.N * labs.N)/ (double) (2 * f);
 }

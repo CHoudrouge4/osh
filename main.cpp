@@ -139,12 +139,13 @@ void measure_SA(int n, int threads_num) {
 }
 
 void test_TS() {
-	Labs l(29);
+	Labs l(50);
 	TS s(l, 10);
-	s.run(10000);
-	std::cout << "TS F 1: " << l.F(s.get_opt_vec()) << '\n';
-	s.reset();
+//	s.run(10000);
+//	std::cout << "TS F 1: " << l.F(s.get_opt_vec()) << '\n';
+//	s.reset();
 
+	s.test_flip_val();
 //	dumpStats(plots,"ts_stat");
 }
 

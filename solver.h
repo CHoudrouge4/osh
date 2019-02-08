@@ -41,10 +41,16 @@ struct Solver {
 	void sbm(Bvec&, int);
 	void uni_crossover(Bvec&, const Bvec&, const Bvec&);
 
+	void construct_tau(const Bvec &S);
+	void construct_c_s(const Bvec &S);
+	double flip_value(const Bvec &S, int i);
 protected:
 	Labs labs; // labs instance we work on
 	double opt; // optimal value (F)
 	Bvec opt_vec; // optimal vector
+
+	std::vector<std::vector<int>> tau;
+	std::vector<int> c_s;
 
 	// Random Generation
 	static std::random_device rd;

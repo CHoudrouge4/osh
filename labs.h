@@ -17,4 +17,8 @@ public:
 	Labs(int);
 	int E(const Bvec&);
 	double F(const Bvec&);
+	int corr(int n, int k, const Bvec &S);
+private:
+	int energy(int n, const Bvec &S);
+	double merit (int n, const Bvec &S);
 };
