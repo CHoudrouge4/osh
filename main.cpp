@@ -167,11 +167,11 @@ void test_MA() {
 }
 
 void predict_timeout_sa() {
-	int threads_num = 2;
+	int threads_num = 3;
 	int sample_size = 40;
-	int timeout = 30000;
+	int timeout = 60000;
 	int nLo = 15;
-	int nHi = 27;
+	int nHi = 28;
 	Runner r;
 
 	vector<pair<Solver*, long long>> solvers;

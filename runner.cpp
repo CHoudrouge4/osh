@@ -1,5 +1,6 @@
 #include "runner.h"
 #include <fstream>
+#include <ctime>
 #include <vector>
 #include <mutex>
 #include <thread>
@@ -10,7 +11,7 @@ using namespace std;
 void dump_stats(vector<statItem> stats, string dir, int exN) {
 	ofstream outS;
 
-	char buffer[50];
+	char buffer[200];
 	sprintf(buffer, "%s/run%d.csv", dir.c_str(), exN);
 	outS.open(buffer);
 
@@ -60,10 +61,17 @@ void Runner::execute( std::vector<std::pair<Solver*,long long>> solvers
 					, int threads_n
 					, int sample_size
 					, string dir_pattern) {
+	time_t rawtime;
+	struct tm * timeinfo;
+	char timebuffer[80];
 
-	long long time = get_time_mcs() / 1000;
-	string experiment_dir = dir_pattern + "_" + to_string(time);
+	time (&rawtime); timeinfo = localtime(&rawtime);
+	strftime(timebuffer,sizeof(timebuffer),"%Y-%m-%d_%H-%M-%S",timeinfo);
+	std::string timestr(timebuffer);
+
+	string experiment_dir = dir_pattern + "_" + timestr;
 	system(("mkdir -p " + experiment_dir).c_str());
+	cout << "Experiment dir: " << experiment_dir << "\n";
 
 	for (uint i = 0; i < solvers.size(); i++) {
 		Solver* solver = get<0>(solvers[i]);
