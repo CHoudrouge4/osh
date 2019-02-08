@@ -70,9 +70,9 @@ public:
 	void set_max_itr(const int);
 	void set_S(const Bvec s);
 private:
-	int max_itr; // TODO Use timeout ?
-	std::vector<int> M; // TODO descriptive name
-	Bvec S; // TODO Descriptive name
+	int max_itr; // TODO Use timeout ? done
+	std::vector<int> M; // it is suggested by the paper
+	Bvec S; // TODO Descriptive name ? maybe current sequence !!
 };
 
 class MA : public Solver {
@@ -91,7 +91,7 @@ private:
 	const int popsize;
 	const double px;
 	const double pm;
-	int max_itr = 1000; // TODO use timeout
+	int max_itr = 1000; // TODO use timeout we need for TS
 
 	std::vector<Bvec> ppl;
 	std::vector<Bvec> offsprings;
