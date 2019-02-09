@@ -59,7 +59,8 @@ public:
 	void set_initial_tempreature(double init_temp);
 //----------------------------------------------
 	void select_params();
-	double finite_difference(std::vector<double> &val, int j, double epsilon);
+	void one_step(std::vector<double> &val, double beta, double epsilon, const int64_t timeout);
+	double finite_difference(std::vector<double> &val, const size_t j, const double epsilon, const int64_t timeout);
 	void init_value(std::vector<double> &val, std::vector<interval> &intervals);
 	void set_params(std::vector<double> &params);
 	// done
