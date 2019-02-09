@@ -200,6 +200,7 @@ bool TS::run(long long timeout) {
 		if(opt_current > opt) {
 			opt = opt_current;
 			opt_vec = opt_vec_current;
+			record_current();
 		}
 
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
@@ -247,8 +248,8 @@ bool MA::run(long long timeout) {
 	record_begin();
 	// TODO don't check running time every iteration
 	// TODO use record_current
-	while(get_running_time_ms() < timeout) {
-
+	for(int k = 0; true; ++k) {
+//	while(get_running_time_ms() < timeout)
 		for(size_t i = 0; i < offsprings.size(); ++i) {
 			double rnd = uni_dis_one(gen);
 			if(rnd <= px) {
@@ -267,7 +268,13 @@ bool MA::run(long long timeout) {
 		}
 
 		replace();
-		running_time = get_running_time_ms();
+		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
+		if (k % 50 == 0 && get_running_time_ms() > timeout) {
+			running_time = get_running_time_ms();
+			return false;
+		}
+		get_optimums();
+		record_current();
 	}
 
 	return false;
@@ -315,3 +322,61 @@ void TS::test_flip_val() {
 		}
 	}
 }
+
+SALS::SALS(const Labs & l) : Solver(l), current(l.N) {
+	sbm(current);
+}
+
+SALS::SALS(const SALS& s) : SALS(s.labs) {
+		this->opt = s.opt;
+ 		this->opt_vec = s.opt;
+		this->current = s.current;
+}
+
+bool SALS::run(long long timeout) {
+
+	double tmp_opt = labs.F(current);
+	init_flip_value(current);
+	Bvec S_plus(labs.N);
+	record_begin();
+	for(int i = 0; true; ++i) {
+		double f_plus = std::numeric_limits<double>::min();
+		for(int j = 0; j < labs.N; ++j) {
+			current.flip_bit(j);
+			Bvec neighbor = current;
+			double f_neighbour = flip_value(j);
+			current.flip_bit(j);
+			if(f_neighbour > f_plus) {
+				f_plus = f_neighbour;
+				S_plus = neighbor;
+			}
+
+			if(f_plus > tmp_opt) {
+				tmp_opt = f_plus;
+				current = S_plus;
+				init_flip_value(current);
+				improvement = true;
+				record_current();
+			} else {
+				improvement = false;
+			}
+		}
+
+		if(tmp_opt >= opt) {
+			opt_vec = current;
+			opt = tmp_opt;
+		}
+
+		if (opt == labs.optF) { running_time = get_running_time_ms(); return true;}
+		if (i % 50 == 0 && (get_running_time_ms() > timeout)) {
+			running_time = get_running_time_ms();
+			std::cout << "here " << running_time << std::endl;
+			return false;
+		}
+		sbm(current);
+		init_flip_value(current);
+	}
+}
+
+std::string SALS::get_name() const { return "sals"; }
+Solver* SALS::clone() const { return new SALS(*this); }

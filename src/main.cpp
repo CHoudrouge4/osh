@@ -149,6 +149,14 @@ void test_TS() {
 //	dumpStats(plots,"ts_stat");
 }
 
+void test_ASLS() {
+	Labs l(27);
+	SALS s(l);
+	s.run(10000);
+	std::cout << "TS F 1: " << s.get_opt() << '\n';
+	s.reset();
+}
+
 void test_MA() {
 	const int n = 41;
 	Labs l(n);
@@ -192,7 +200,8 @@ int main () {
 	//simpleDemo();
 	//compareMuLambdas(30);
 	//testing_SA();
-	test_TS();
+	//test_TS();
+	test_ASLS();
 	//measure_SA(25, 2);
 	//predict_timeout_sa();
 

@@ -115,11 +115,15 @@ private:
 	Bvec select_parent();
 	void replace();
 };
-/*
-class SDLS : public Solver {
+
+class SALS : public Solver {
 public:
-	SDLS();
+	SALS(const Labs &);
+	SALS(const SALS& s);
 
+	bool run(long long timeout);
+	std::string get_name() const;
+	Solver* clone() const;
 private:
-
-};*/
+	Bvec current;
+};
