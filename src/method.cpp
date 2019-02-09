@@ -355,10 +355,7 @@ bool SALS::run(long long timeout) {
 				tmp_opt = f_plus;
 				current = S_plus;
 				init_flip_value(current);
-				improvement = true;
 				record_current();
-			} else {
-				improvement = false;
 			}
 		}
 
@@ -370,7 +367,6 @@ bool SALS::run(long long timeout) {
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true;}
 		if (i % 50 == 0 && (get_running_time_ms() > timeout)) {
 			running_time = get_running_time_ms();
-			std::cout << "here " << running_time << std::endl;
 			return false;
 		}
 		sbm(current);

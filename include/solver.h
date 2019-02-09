@@ -47,6 +47,9 @@ struct Solver {
 	// Flip the value accordingly to data initialised.
 	double flip_value(int i);
 
+	// parameter optimizer
+	std::vector<double> select_params(const int pram_number); 
+
 protected:
 	Labs labs; // labs instance we work on
 	double opt; // optimal value (F)
