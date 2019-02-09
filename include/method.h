@@ -59,7 +59,7 @@ public:
 	void set_initial_tempreature(double init_temp);
 //----------------------------------------------
 	void select_params();
-	void one_step(std::vector<double> &val, double beta, double epsilon, const int64_t timeout);
+	void one_step(std::vector<double> &val, const std::vector<interval> &constraints, double beta, double epsilon, const int64_t timeout);
 	double finite_difference(std::vector<double> &val, const size_t j, const double epsilon, const int64_t timeout);
 	void init_value(std::vector<double> &val, std::vector<interval> &intervals);
 	void set_params(std::vector<double> &params);
@@ -67,6 +67,7 @@ public:
 	int get_param_size();
 	// done
 	std::vector<interval> get_constraints();
+	std::vector<double> get_params();
 
 private:
 	// param order alpha or mu/ t0;

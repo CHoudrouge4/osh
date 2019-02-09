@@ -195,16 +195,32 @@ void predict_timeout_sa() {
 	for (auto x : solvers) free(get<0>(x));
 }
 
+void test_sa_param_select() {
+	Labs l(39);
+	SA sa(l, 0.5, 0.5);
+	sa.select_params();
+	auto params = sa.get_params();
+	for(size_t i = 0; i < params.size(); ++i) {
+		std::cout << params[i] << '\n';
+	}
+
+	for(int i = 0; i < 5; ++i) {
+		sa.run(10000);
+		std::cout << "SA opt " << sa.get_opt() << '\n';
+	}
+}
+
 int main () {
 	//measure_SA(25);
 	//simpleDemo();
 	//compareMuLambdas(30);
 	//testing_SA();
 	//test_TS();
-	test_ASLS();
+	//test_ASLS();
 	//measure_SA(25, 2);
 	//predict_timeout_sa();
 
 	//std::cout << rand() << '\n';
 	//std::cout << rand() << '\n';
+	test_sa_param_select();
 }

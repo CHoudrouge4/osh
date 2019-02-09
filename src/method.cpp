@@ -155,21 +155,24 @@ void SA::select_params() {
 	init_value(val, constraints);
 	const double epsilon = 0.3;
 	const double beta = 0.3;
-	const int64_t timeout = 100000;
+	const int64_t timeout = 1000;
 	double pre_opt = opt;
 	int i = 0;
 	while(true) {
-			one_step(val, beta, epsilon, timeout);
+			one_step(val, constraints, beta, epsilon, timeout);
 			if(std::abs(opt - pre_opt) <= 0.1 || i == 1000) { break;}
+			pre_opt = opt;
 			i++;
 	}
 	set_params(val);
 }
 
-void SA::one_step(std::vector<double> &val, double beta, double epsilon, const int64_t timeout) {
+void SA::one_step(std::vector<double> &val, const std::vector<interval> &constraints, double beta, double epsilon, const int64_t timeout) {
 	for(size_t j = 0; j < val.size(); ++j) {
 		double df = finite_difference(val, j, epsilon, timeout);
 		val[j] += beta * df;
+		val[j] = std::min(val[j], constraints[j].second - epsilon);
+		val[j] = std::max(val[j], constraints[j].first + epsilon);
 	}
 	set_params(val);
 	run(timeout);
@@ -198,7 +201,7 @@ void SA::set_params(std::vector<double> & params) {
 }
 
 int SA::get_param_size() {
-	return 2;
+	return int(2);
 }
 
 void SA::init_value(std::vector<double> &val, std::vector<interval> &intervals) {
@@ -211,8 +214,16 @@ void SA::init_value(std::vector<double> &val, std::vector<interval> &intervals) 
 std::vector<interval> SA::get_constraints() {
 		std::vector<interval> intervals(get_param_size());
 		intervals[0] = {0, 1};
-		intervals[1] = {0, std::numeric_limits<double>::max()};
+		intervals[1] = {0, 10000000};
 		return intervals;
+}
+
+std::vector<double> SA::get_params() {
+	std::vector<double> v(get_param_size());
+	if(linear_cooling) v[0] = mu;
+	else v[0] = alpha;
+	v[1] = t0;
+	return v;
 }
 
 TS::TS(Labs l, const int max_itr) : Solver(l), max_itr(max_itr), S(labs.N) {
