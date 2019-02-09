@@ -37,3 +37,6 @@
 !plotData/gnuplotCmd.cmd
 !plotData/plot.sh
 plotData/*
+
+# Ipython
+.ipynb_checkpoints/
