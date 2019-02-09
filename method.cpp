@@ -314,10 +314,11 @@ void TS::test_flip_val() {
 		init_flip_value(s);
 
 		for (int i = 0; i < labs.N; i++) {
-			double v = flip_value(s,i);
 			s.flip_bit(i);
+			double v = flip_value(s,i);
 			std::cout << v << " ~ " << labs.F(s) << "\n";
 			assert(v == labs.F(s));
+			init_flip_value(s);
 		}
 	}
 }
