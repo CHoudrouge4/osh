@@ -40,3 +40,13 @@ plotData/*
 
 # Ipython
 .ipynb_checkpoints/
+
+# CMake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
