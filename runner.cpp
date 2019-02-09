@@ -17,7 +17,7 @@ void dump_stats(vector<statItem> stats, string dir, int exN) {
 
 	for (uint j = 0; j < stats.size(); j++) {
 		auto val = stats[j];
-		outS << get<0>(val) << "  " << get<1>(val) << "  " << get<2>(val) << "\n";
+		outS << get<0>(val) << "," << get<1>(val) << "," << get<2>(val) << "\n";
 	}
 	outS.close();
 }
