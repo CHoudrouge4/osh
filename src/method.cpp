@@ -308,17 +308,17 @@ void MA::get_optimums() {
 void MA::set_max_itr(const int itr) { max_itr = itr; }
 
 void TS::test_flip_val() {
-	for (int j = 0; j < 50; j++) {
+	for (int j = 0; j < 500; j++) {
 		Bvec s(labs.N);
 		s.randomise();
-		init_flip_value(s);
 
+		init_flip_value(s);
 		for (int i = 0; i < labs.N; i++) {
 			s.flip_bit(i);
-			double v = flip_value(s,i);
-			std::cout << v << " ~ " << labs.F(s) << "\n";
+			double v = flip_value(i);
+			//std::cout << v << " ~ " << labs.F(s) << "\n";
 			assert(v == labs.F(s));
-			init_flip_value(s);
+			s.flip_bit(i);
 		}
 	}
 }

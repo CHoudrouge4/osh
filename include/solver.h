@@ -42,8 +42,10 @@ struct Solver {
 	void sbm(Bvec&, int);
 	void uni_crossover(Bvec&, const Bvec&, const Bvec&);
 
+	// Init data to flip the value
 	void init_flip_value(const Bvec &S);
-	double flip_value(const Bvec &S, int i);
+	// Flip the value accordingly to data initialised.
+	double flip_value(int i);
 
 protected:
 	Labs labs; // labs instance we work on

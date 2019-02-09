@@ -91,7 +91,7 @@ void Solver::init_flip_value(const Bvec &S) {
 	}
 }
 
-double Solver::flip_value(const Bvec &S, int i) {
+double Solver::flip_value(int i) {
 	int f = 0;
 	for(int p = 0; p < labs.N - 1; ++p) {
 		int v = c_s[p];
