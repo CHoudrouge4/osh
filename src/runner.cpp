@@ -124,7 +124,7 @@ void Runner::execute( std::vector<std::pair<Solver*,long long>> solvers
 		}
 
 		ofstream outS;
-		char buffer[50]; sprintf(buffer, "%s/summary.csv", run_dir.c_str());
+		char buffer[200]; sprintf(buffer, "%s/summary.csv", run_dir.c_str());
 		outS.open(buffer);
 
 		std::string summary =
