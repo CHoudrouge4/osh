@@ -149,6 +149,58 @@ bool SA::run(long long timeout) {
 void SA::set_cooling_option(bool is_lin) { linear_cooling = is_lin; }
 void SA::set_initial_tempreature(double init_temp) { t0 = init_temp; }
 
+void SA::select_params() {
+	std::vector<interval> constraints = get_constraints();
+	std::vector<double> val(get_param_size());
+	init_value(val, constraints);
+	double epsilon = 0.3;
+	double beta = 0.3;
+	for(int j = 0; j < val.size(); ++j) {
+		double df = finite_difference(val, j, epsilon);
+		val[j] += beta * df;
+	}
+	set_params(val);
+}
+
+double SA::finite_difference(std::vector<double> &val, int j, double epsilon) {
+		const int64_t timeout = 10000;
+		set_params(val);
+		run(timeout);
+		double fh = opt;
+		val[j] += epsilon;
+		set_params(val);
+		run(timeout);
+		double f = opt;
+		return (fh - f) / epsilon;
+}
+
+void SA::set_params(std::vector<double> & params) {
+	if(linear_cooling) {
+		mu = params[0];
+	} else {
+		alpha = params[0];
+	}
+	t0 = params[1];
+}
+
+int SA::get_param_size() {
+	return 2;
+}
+
+void SA::init_value(std::vector<double> &val, std::vector<interval> &intervals) {
+	for(int i = 0; i < val.size(); ++i) {
+		std::uniform_real_distribution<> dis(intervals[i].first, intervals[i].second);
+		val[i] = dis(gen);
+	}
+}
+
+std::vector<interval> SA::get_constraints() {
+		std::vector<interval> intervals(get_param_size());
+		intervals[0] = {0, 1};
+		intervals[1] = {0, std::numeric_limits<double>::max()};
+		return intervals;
+}
+
 TS::TS(Labs l, const int max_itr) : Solver(l), max_itr(max_itr), S(labs.N) {
 	assert(max_itr >= 1);
 	M = std::vector<int>(l.N, 0);

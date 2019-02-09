@@ -6,6 +6,7 @@
 #include <iostream>
 
 using statItem = std::tuple<int64_t, long, double>;
+typedef std::pair<double, double> interval;
 
 long long get_time_mcs();
 
@@ -46,9 +47,6 @@ struct Solver {
 	void init_flip_value(const Bvec &S);
 	// Flip the value accordingly to data initialised.
 	double flip_value(int i);
-
-	// parameter optimizer
-	std::vector<double> select_params(const int pram_number); 
 
 protected:
 	Labs labs; // labs instance we work on

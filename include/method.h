@@ -57,7 +57,18 @@ public:
 
 	void set_cooling_option(bool is_lin);
 	void set_initial_tempreature(double init_temp);
+//----------------------------------------------
+	void select_params();
+	double finite_difference(std::vector<double> &val, int j, double epsilon);
+	void init_value(std::vector<double> &val, std::vector<interval> &intervals);
+	void set_params(std::vector<double> &params);
+	// done
+	int get_param_size();
+	// done
+	std::vector<interval> get_constraints();
+
 private:
+	// param order alpha or mu/ t0;
 
 	double alpha; // cooling exponential constant
 	double mu; // cooling linear constant
@@ -81,6 +92,7 @@ public:
 	void set_max_itr(const int);
 	void set_S(const Bvec s);
 	void test_flip_val();
+
 private:
 	int max_itr; // TODO Use timeout
 	std::vector<int> M; // Tenure table, holds tabu data
