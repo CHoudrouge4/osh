@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <cmath>
 
-bool enable_memo = false;
+bool Labs::enable_memo = false;
 
 int Labs::corr(int n, int k, const Bvec &S) {
 	int sum = 0;

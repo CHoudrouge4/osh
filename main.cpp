@@ -192,9 +192,9 @@ int main () {
 	//simpleDemo();
 	//compareMuLambdas(30);
 	//testing_SA();
-	//test_TS();
+	test_TS();
 	//measure_SA(25, 2);
-	predict_timeout_sa();
+	//predict_timeout_sa();
 
 	//std::cout << rand() << '\n';
 	//std::cout << rand() << '\n';

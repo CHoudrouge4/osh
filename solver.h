@@ -37,18 +37,20 @@ struct Solver {
 	// Total algorithm running time in ms.
 	long long running_time;
 
+	// Common helper functions for solvers
 	void sbm(Bvec&);
 	void sbm(Bvec&, int);
 	void uni_crossover(Bvec&, const Bvec&, const Bvec&);
 
-	void construct_tau(const Bvec &S);
-	void construct_c_s(const Bvec &S);
+	void init_flip_value(const Bvec &S);
 	double flip_value(const Bvec &S, int i);
+
 protected:
 	Labs labs; // labs instance we work on
 	double opt; // optimal value (F)
 	Bvec opt_vec; // optimal vector
 
+	// Helper matrices for flipping the bit in O(L)
 	std::vector<std::vector<int>> tau;
 	std::vector<int> c_s;
 

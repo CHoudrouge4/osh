@@ -76,7 +76,8 @@ void Solver::record_current() {
 	stats.push_back(std::make_tuple(cur_time, labs.calls_num, opt));
 }
 
-void Solver::construct_tau(const Bvec &S) {
+void Solver::init_flip_value(const Bvec &S) {
+	// construct Tau(S)
 	for(int i = 0; i < labs.N - 1; ++i) {
 		int row_size = labs.N - 1 - i;
 		//tau[i] = std::vector<int>(row_size);
@@ -84,9 +85,7 @@ void Solver::construct_tau(const Bvec &S) {
 			tau[i][j - 1] = (S.get(j - 1)? 1: -1) * (S.get(i + j) ? 1 : -1);
 		}
 	}
-}
-
-void Solver::construct_c_s(const Bvec &S) {
+	// construct C(S)
 	for(int i = 0; i < labs.N - 1; i++) {
 		c_s[i] = labs.corr(S.size(), i + 1, S);
 	}
