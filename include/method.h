@@ -115,3 +115,11 @@ private:
 	Bvec select_parent();
 	void replace();
 };
+/*
+class SDLS : public Solver {
+public:
+	SDLS();
+
+private:
+
+};*/

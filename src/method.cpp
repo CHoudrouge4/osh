@@ -10,7 +10,6 @@
 
 // 1 + 1
 
-
 OnePlusOne::OnePlusOne(Labs labs): Solver(labs), tmp_opt(labs.N) {}
 OnePlusOne::OnePlusOne(const OnePlusOne& s): Solver(s), tmp_opt(s.labs.N) { }
 OnePlusOne* OnePlusOne::clone() const { return new OnePlusOne(*this); }
@@ -40,7 +39,6 @@ bool OnePlusOne::run(long long timeout) {
 }
 
 // Mu Lambda
-
 
 MuLambda::MuLambda (Labs labs, int mu, int lambda, double crossover_prob)
 	: Solver(labs)
@@ -96,13 +94,11 @@ bool MuLambda::run(long long timeout) {
 
 SA::SA(Labs labs, const double alpha, const double mu) :
 	Solver(labs), alpha(alpha), mu(mu) {
-	assert(alpha > 0 and alpha < 1);
-	assert(mu > 0 and  mu < 1);
+	assert(alpha > 0 && alpha < 1);
+	assert(mu > 0 &&  mu < 1);
 }
 
-SA::SA(const SA& s) : SA(s.labs, s.alpha, s.mu) {
-	t0 = s.t0;
-}
+SA::SA(const SA& s) : SA(s.labs, s.alpha, s.mu) { t0 = s.t0; }
 
 SA* SA::clone() const { return new SA(*this); }
 
@@ -153,7 +149,6 @@ bool SA::run(long long timeout) {
 void SA::set_cooling_option(bool is_lin) { linear_cooling = is_lin; }
 void SA::set_initial_tempreature(double init_temp) { t0 = init_temp; }
 
-
 TS::TS(Labs l, const int max_itr) : Solver(l), max_itr(max_itr), S(labs.N) {
 	assert(max_itr >= 1);
 	M = std::vector<int>(l.N, 0);
@@ -174,9 +169,7 @@ bool TS::run(long long timeout) {
 	const int extra_tabu = max_itr/50;
 	std::uniform_int_distribution<int> urand(0, std::max(extra_tabu - 1, 1));
 	record_begin();
-	// TODO don't check running time every iteration
-	// TODO use record_current
-	while(get_running_time_ms() < timeout) {
+	for(int i = 0; true; ++i) {
 		Bvec opt_vec_current = S;
 		double opt_current = labs.F(opt_vec_current);
 		Bvec S_plus = Bvec(labs.N);
@@ -204,22 +197,22 @@ bool TS::run(long long timeout) {
 			}
 		}
 
-	//	opt = std::max(opt, opt_current);
 		if(opt_current > opt) {
 			opt = opt_current;
 			opt_vec = opt_vec_current;
 		}
 
-		running_time = get_running_time_ms();
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
-	//	if (get_running_time_ms() > timeout) { running_time = get_running_time_ms(); return false; }
+		if (i % 50 == 0 && get_running_time_ms() > timeout) {
+			running_time = get_running_time_ms();
+			return false;
+		}
 	}
 	return false;
 }
 
 void TS::set_max_itr(const int itr) { max_itr = itr; }
 void TS::set_S(const Bvec s) { S = s; }
-
 
 MA::MA(Labs l, const int popsize, const double px, const double pm)
 	: Solver(l)
