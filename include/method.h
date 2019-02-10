@@ -47,7 +47,7 @@ public:
 class SA : public Solver {
 
 public:
-	SA(Labs, const double alpha, const double mu);
+	SA(Labs, const double mu, const double t0);
 	SA(const SA&);
 	SA* clone() const;
 
@@ -55,16 +55,9 @@ public:
 
 	bool run(long long timeout);
 
-	void set_cooling_option(bool is_lin);
-	void set_initial_tempreature(double init_temp);
-
 private:
-
-	double alpha; // cooling exponential constant
-	double mu; // cooling linear constant
+	double mu; // linear cooling constant
 	double t0 = 1000; // initial temprature
-	// it must be an enum, but for now we only have 2 options
-	bool linear_cooling = true; // otherwise exponential
 };
 
 

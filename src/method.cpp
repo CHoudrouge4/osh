@@ -98,13 +98,12 @@ bool MuLambda::run(long long timeout) {
 
 // Simulated annealing
 
-SA::SA(Labs labs, const double alpha, const double mu) :
-	Solver(labs), alpha(alpha), mu(mu) {
-	assert(alpha > 0 && alpha < 1);
+SA::SA(Labs labs, const double mu, const double t0) :
+	Solver(labs), mu(mu), t0(t0) {
 	assert(mu > 0 &&  mu < 1);
 }
 
-SA::SA(const SA& s) : SA(s.labs, s.alpha, s.mu) { t0 = s.t0; }
+SA::SA(const SA& s) : SA(s.labs, s.mu, s.t0) { }
 
 SA* SA::clone() const { return new SA(*this); }
 
@@ -137,23 +136,17 @@ bool SA::run(long long timeout) {
 			if(prob < acc_prob) s = neighbor;
 		}
 
+		// Linear cooling
+		t = t - mu * i;
+
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
 		if (i % 50 == 0 && get_running_time_ms() > timeout) {
 			running_time = get_running_time_ms();
 			return false;
 		}
 
-		// Cooling
-		if (linear_cooling) {
-			t = t - mu * i;
-		} else {
-			t = t * std::pow(alpha, i);
-		}
 	}
 }
-
-void SA::set_cooling_option(bool is_lin) { linear_cooling = is_lin; }
-void SA::set_initial_tempreature(double init_temp) { t0 = init_temp; }
 
 
 

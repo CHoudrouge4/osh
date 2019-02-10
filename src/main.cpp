@@ -77,8 +77,7 @@ void simpleDemo() {
 		s2.reset();
 	}
 
-	SA s3(l, 0.75, 0.5);
-	s3.set_initial_tempreature(10000);
+	SA s3(l, 0.5, 10000);
 	s3.run(10000);
 	std::cout << "SA F 100: " << l.F(s3.get_opt_vec()) << '\n';
 	plots.push_back(s3.stats);
@@ -87,50 +86,11 @@ void simpleDemo() {
 	dumpStats(plots,"main");
 }
 
-void testing_SA() {
-	Labs l(5);
-
-	Bvec v(5);
-	v.randomise();
-	cout << "Random: " << l.F(v) << " at " << v << '\n';
-
-	vector<vector<statItem>> plots;
-//-------------------------------------------------------
-	double alpha = 0.20;
-	double mu    = 0.10;
-	double t0    = 10000;
-
-	SA s3(l, alpha, mu);
-
-	s3.run(10000);
-	s3.set_initial_tempreature(t0);
-	std::cout << "SA F 1: " << l.F(s3.get_opt_vec()) << '\n';
-	std::cout << "opt seq " <<  s3.get_opt_vec() << '\n';
-	s3.reset();
-
-
-
-	s3.run(10000);
-//	s3.set_initial_tempreature(t0);
-//	s3.set_cooling_option('e');
-	std::cout << "SA F 2: " << l.F(s3.get_opt_vec()) << '\n';
-	s3.reset();
-
-	s3.run(20000);
-//	s3.set_initial_tempreature(t0);
-//	s3.set_cooling_option('e');
-	std::cout << "SA F 3: " << l.F(s3.get_opt_vec()) << '\n';
-	s3.reset();
-
-	dumpStats(plots,"sa_stat");
-
-}
 
 void measure_SA(int n, int threads_num) {
 	Runner r;
 
-	SA sa(Labs(n), 0.75, 0.5);
-	sa.set_initial_tempreature(10000);
+	SA sa(Labs(n), 0.5, 10000);
 
 	vector<pair<Solver*, long long>> solvers;
 	solvers.push_back(make_pair(&sa,20000));
@@ -179,8 +139,7 @@ void predict_timeout_sa() {
 
 	vector<pair<Solver*, long long>> solvers;
 	for (int n = nLo; n <= nHi; n++) {
-		SA* sa = new SA(Labs(n), 0.75, 0.9);
-		sa->set_initial_tempreature(10000);
+		SA* sa = new SA(Labs(n), 0.9, 10000);
 		solvers.push_back(make_pair(sa,timeout));
 	}
 
