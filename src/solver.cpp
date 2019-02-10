@@ -46,6 +46,13 @@ void Solver::uni_crossover(Bvec& target, const Bvec& first, const Bvec & second)
 	}
 }
 
+void Solver::single_point_crossover(Bvec& target, const Bvec& first, const Bvec & second) {
+	int point = uni_dis_N(gen);
+
+	for (int i = 0; i < point; i++) { target.set(i, first.get(i)); }
+	for (int i = point; i < labs.N; i++) { target.set(i, second.get(i)); }
+}
+
 Labs Solver::get_Labs() { return labs; }
 int Solver::get_N() { return labs.N; }
 double Solver::get_opt() { return opt; }

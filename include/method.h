@@ -76,9 +76,7 @@ public:
 	void test_flip_val();
 
 private:
-	int max_itr; // TODO Use timeout
 	std::vector<int> M; // Tenure table, holds tabu data
-	Bvec S; // Temporary vector
 
 	// If use_timeout is set, it'll use the timeout and work as a
 	// normal solver. Otherwise it does max_itr.
@@ -96,7 +94,6 @@ public:
 	void runFromS(Bvec& S); // Runs once
 
 private:
-	Bvec S;
 	bool runInternal(long long timeout, bool use_timeout, bool rand_S);
 };
 

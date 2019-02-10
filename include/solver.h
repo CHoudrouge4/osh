@@ -44,6 +44,7 @@ struct Solver {
 	void sbm(Bvec&);
 	void sbm(Bvec&, int);
 	void uni_crossover(Bvec&, const Bvec&, const Bvec&);
+	void single_point_crossover(Bvec&, const Bvec&, const Bvec&);
 
 	// Init data to flip the value
 	void init_flip_value(const Bvec &S);
@@ -63,7 +64,7 @@ protected:
 	static std::random_device rd;
 	static std::mt19937 gen;
 	std::binomial_distribution<int> bin_dis;
-	std::uniform_int_distribution<int> uni_dis_N; // [0,labs.N]
+	std::uniform_int_distribution<int> uni_dis_N; // [0,labs.N-1]
 	std::uniform_int_distribution<int> fair_coin;
 	std::uniform_real_distribution<double> uni_dis_one; // (0,1)
 

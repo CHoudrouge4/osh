@@ -156,7 +156,7 @@ bool SA::run(long long timeout) {
 
 // Tabu search
 
-TS::TS(Labs l) : Solver(l), S(labs.N) {
+TS::TS(Labs l) : Solver(l) {
 	M = std::vector<int>(l.N, 0);
 }
 TS::TS(const TS& s) : TS(s.labs) { }
@@ -225,7 +225,7 @@ bool TS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
 }
 
 bool TS::run(long long timeout) { return runInternal(timeout,true,true); }
-void TS::runFromS(Bvec& s) { S = s; runInternal(50,true,false); }
+void TS::runFromS(Bvec& s) { opt_vec = s; runInternal(0,false,false); }
 
 void TS::test_flip_val() {
 	for (int j = 0; j < 500; j++) {
@@ -247,7 +247,7 @@ void TS::test_flip_val() {
 // Steepest ascent local search
 
 
-SALS::SALS(Labs l) : Solver(l), S(l.N) { }
+SALS::SALS(Labs l) : Solver(l) { }
 
 SALS::SALS(const SALS& s) : SALS(s.labs) { }
 
@@ -296,7 +296,7 @@ bool SALS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
 	return false;
 }
 bool SALS::run(long long timeout) { return runInternal(timeout,true,true); }
-void SALS::runFromS(Bvec& s) { S = s; runInternal(50,true,false); }
+void SALS::runFromS(Bvec& s) { opt_vec = s; runInternal(0,false,false); }
 
 std::string SALS::get_name() const { return "sals"; }
 Solver* SALS::clone() const { return new SALS(*this); }
@@ -310,8 +310,8 @@ MA::MA(Labs l, bool isTS)
 	, isTS(isTS)
 	, ts(TS(l))
 	, sals(SALS(l))
-	, popsize(30)
-	, offsize(150)
+	, popsize(10)
+	, offsize(50)
 	, px(0.9)
 	, pm(1/((double)l.N)) {
 	ppl = std::vector<Bvec> (popsize, Bvec(l.N));
@@ -348,19 +348,19 @@ bool MA::run(long long timeout) {
 		for(int i = 0; i < offsize; ++i) {
 			double rnd = uni_dis_one(gen);
 			if(rnd <= px) {
-				uni_crossover( offsprings[i]
-							 , ppl[uni_dis_popsize(gen)]
-							 , ppl[uni_dis_popsize(gen)]);
+				single_point_crossover( offsprings[i]
+										, ppl[uni_dis_popsize(gen)]
+										, ppl[uni_dis_popsize(gen)]);
 			} else {
 				offsprings[i] = ppl[uni_dis_popsize(gen)];
 			}
 
-			rnd = uni_dis_one(gen);
-			if(rnd <= pm) sbm(offsprings[i]);
+			if(uni_dis_one(gen) <= pm) sbm(offsprings[i], 2);
 
 			if (isTS) {
 				ts.runFromS(offsprings[i]);
 				labs.calls_num += ts.get_Labs().calls_num;
+				assert(ts.get_opt() >= labs.F(offsprings[i]));
 				offsprings[i] = ts.get_opt_vec();
 				off_val[i] = ts.get_opt();
 				ts.reset();
