@@ -183,25 +183,22 @@ bool TS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
 	Bvec S = opt_vec;
 
 	record_begin();
-	for(int k = 0; use_timeout ? true : (k < 5000*max_itr); k++) {
+	for(int k = 0; use_timeout ? true : (k < 10*max_itr); k++) {
 		Bvec S_plus = S;
 		int index = 0;
 
 		init_flip_value(S);
 		double f_plus = std::numeric_limits<double>::min();
 		for(int i = 0; i < labs.N; ++i) {
-			Bvec neighbor = S;
-			neighbor.flip_bit(i);
 			double f_neighbour = flip_value(i);
 			if(k > M[i] || f_neighbour > opt) {
 				if(f_neighbour > f_plus) {
 					f_plus = f_neighbour;
-					S_plus = neighbor;
 					index = i;
 				}
 			}
-			neighbor.flip_bit(i);
 		}
+		S_plus.flip_bit(index);
 
 		S = S_plus;
 
@@ -212,7 +209,8 @@ bool TS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
 			record_current();
 		}
 
-		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
+		if (opt == labs.optF) {
+			running_time = get_running_time_ms(); return true; }
 		if (k % 50 == 0 && get_running_time_ms() > timeout) {
 			running_time = get_running_time_ms();
 			return false;
@@ -227,7 +225,7 @@ bool TS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
 }
 
 bool TS::run(long long timeout) { return runInternal(timeout,true,true); }
-void TS::runFromS(Bvec& s) { S = s; runInternal(0,false,false); }
+void TS::runFromS(Bvec& s) { S = s; runInternal(50,true,false); }
 
 void TS::test_flip_val() {
 	for (int j = 0; j < 500; j++) {
@@ -254,43 +252,40 @@ SALS::SALS(Labs l) : Solver(l), S(l.N) { }
 SALS::SALS(const SALS& s) : SALS(s.labs) { }
 
 bool SALS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
-	//copied from TS
-	int var_factor = uni_dis_N(gen) / 2;
-	int var_factor_sign = var_factor - var_factor / 2;
-	int max_itr = labs.N + var_factor_sign;
 
-	if (rand_S) S.randomise(); // otherwise use the start value provided
+	if (rand_S) { opt_vec.randomise(); }
+	opt = labs.F(opt_vec);
 
-	double tmp_opt = labs.F(S);
 	Bvec S_plus(labs.N);
 
+	Bvec tmp_vec = opt_vec;
+
+	bool improvement = false;
 	record_begin();
-	for(int i = 0; (use_timeout ? true : i < max_itr); ++i) {
+	for(int i = 0; (use_timeout ? true : (not improvement)); i++) {
 		double f_plus = std::numeric_limits<double>::min();
-		sbm(S);
-		init_flip_value(S);
+
+		if (use_timeout) { sbm(tmp_vec); }
+
+		init_flip_value(tmp_vec);
+		int index = 0;
 		for(int j = 0; j < labs.N; ++j) {
-			S.flip_bit(j);
-			Bvec neighbor = S;
 			double f_neighbour = flip_value(j);
-			S.flip_bit(j);
 			if(f_neighbour > f_plus) {
 				f_plus = f_neighbour;
-				S_plus = neighbor;
-			}
-
-			if(f_plus > tmp_opt) {
-				tmp_opt = f_plus;
-				S = S_plus;
-				init_flip_value(S);
+				index = j;
 			}
 		}
 
-		if(tmp_opt > opt) {
-			opt_vec = S;
-			opt = tmp_opt;
+		if(f_plus > opt) {
+			improvement = true;
+			opt_vec = tmp_vec;
+			opt_vec.flip_bit(index);
+
+			opt = f_plus;
 			record_current();
 		}
+
 
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true;}
 		if (i % 50 == 0 && (get_running_time_ms() > timeout)) {
@@ -301,7 +296,7 @@ bool SALS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
 	return false;
 }
 bool SALS::run(long long timeout) { return runInternal(timeout,true,true); }
-void SALS::runFromS(Bvec& s) { S = s; runInternal(0,false,false); }
+void SALS::runFromS(Bvec& s) { S = s; runInternal(50,true,false); }
 
 std::string SALS::get_name() const { return "sals"; }
 Solver* SALS::clone() const { return new SALS(*this); }
@@ -315,7 +310,7 @@ MA::MA(Labs l, bool isTS)
 	, isTS(isTS)
 	, ts(TS(l))
 	, sals(SALS(l))
-	, popsize(10)
+	, popsize(30)
 	, offsize(150)
 	, px(0.9)
 	, pm(1/((double)l.N)) {
@@ -344,6 +339,9 @@ bool MA::run(long long timeout) {
 		ppl[i].randomise();
 		ppl_val[i] = labs.F(ppl[i]);
 	}
+
+	opt_vec.randomise();
+	opt = labs.F(opt_vec);
 
 	record_begin();
 	for(int k = 0; true; k++) {
@@ -375,6 +373,9 @@ bool MA::run(long long timeout) {
 			}
 		}
 
+		// Get optimums
+		auto oldOpt = opt;
+
 		// Replace (put 'popsize' optimal values from offsprings to pop)
 		cache.clear();
 		for(int i = 0; i < popsize; i++) {
@@ -392,20 +393,9 @@ bool MA::run(long long timeout) {
 			ppl_val[i] = off_val[best_index];
 		}
 
-		// Get optimums
-		auto oldOpt = opt;
-		int index = 0;
-		for(int i = 1; i < popsize; i++) {
-			if(opt < ppl_val[i]) {
-				opt = ppl_val[i];
-				index = i;
-			}
-		}
-		opt_vec = ppl[index];
-		if (opt > oldOpt) {
-			std::cout << "UP\n";
-			record_current();
-		}
+		opt_vec = ppl[0];
+		opt = ppl_val[0];
+		if (opt > oldOpt) { record_current(); }
 
 
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
