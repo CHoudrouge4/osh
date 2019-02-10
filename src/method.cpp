@@ -162,7 +162,7 @@ TS::TS(const TS& s) : TS(s.labs) { }
 TS* TS::clone() const { return new TS(*this); }
 std::string TS::get_name() const { return "tabu"; }
 
-bool TS::runInternal(long long timeout, bool use_timeout) {
+bool TS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
 	int var_factor = uni_dis_N(gen) / 2;
 	int var_factor_sign = var_factor - var_factor / 2;
 	// N +- N/4, paper suggests N +- N/2
@@ -172,61 +172,59 @@ bool TS::runInternal(long long timeout, bool use_timeout) {
 	const int extra_tabu = max_itr/50;
 	std::uniform_int_distribution<int> urand(0, std::max(extra_tabu - 1, 1));
 
-	S.randomise();
-	record_begin();
-	for(int i = 0; use_timeout ? true : (i < max_itr); ++i) {
-		Bvec opt_vec_current = S;
-		double opt_current = labs.F(opt_vec_current);
-		Bvec S_plus = Bvec(labs.N);
-		int index = 0;
-		for(int k = 1; k <= max_itr; ++k) {
-			init_flip_value(S);
-			double f_plus = std::numeric_limits<double>::min();
-			for(int i = 0; i < labs.N; ++i) {
-				Bvec neighbor = S;
-				neighbor.flip_bit(i);
-				double f_neighbour = flip_value(i);
-				if(k >= M[i] || f_neighbour > opt_current) {
-					if(f_neighbour > f_plus) {
-						f_plus = f_neighbour;
-						S_plus = neighbor;
-						index = i;
-					}
-				}
-				neighbor.flip_bit(i);
-			}
+	// otherwise use the start value provided
+	if (rand_S) { opt_vec.randomise(); }
+	opt = labs.F(opt_vec);
 
-			S = S_plus;
-			M[index] = k + min_tabu + urand(gen);
-			if(f_plus > opt_current) {
-				opt_vec_current = S_plus;
-				opt_current = f_plus;
+	// We use opt_vec instead of S*;
+	Bvec S = opt_vec;
+
+	record_begin();
+	for(int k = 0; use_timeout ? true : (k < max_itr); k++) {
+		Bvec S_plus = S;
+		int index = 0;
+
+		init_flip_value(S);
+		double f_plus = std::numeric_limits<double>::min();
+		for(int i = 0; i < labs.N; ++i) {
+			Bvec neighbor = S;
+			neighbor.flip_bit(i);
+			double f_neighbour = flip_value(i);
+			if(k > M[i] || f_neighbour > opt) {
+				if(f_neighbour > f_plus) {
+					f_plus = f_neighbour;
+					S_plus = neighbor;
+					index = i;
+				}
 			}
+			neighbor.flip_bit(i);
 		}
 
-		if(opt_current > opt) {
-			opt = opt_current;
-			opt_vec = opt_vec_current;
+		S = S_plus;
+
+		M[index] = k + min_tabu + urand(gen);
+		if(f_plus > opt) {
+			opt_vec = S_plus;
+			opt = f_plus;
 			record_current();
 		}
 
-		if (opt == labs.optF) {
-			running_time = get_running_time_ms();
-			return true;
-		}
-		if (i % 50 == 0 && get_running_time_ms() > timeout) {
+		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
+		if (k % 50 == 0 && get_running_time_ms() > timeout) {
 			running_time = get_running_time_ms();
 			return false;
-			std::cout << "Timeouted\n";
+		}
+
+		// In timeout setting we sometimes re-randomise S to avoid being stuck.
+		if (use_timeout && k > 0 && k % max_itr == 0) {
+			S.randomise();
 		}
 	}
 	return false;
 }
 
-bool TS::run(long long timeout) { return runInternal(timeout,true); }
-bool TS::runOnce() { return runInternal(0,false); }
-
-void TS::set_S(const Bvec s) { S = s; }
+bool TS::run(long long timeout) { return runInternal(timeout,true,true); }
+void TS::runFromS(Bvec& s) { S = s; runInternal(0,false,false); }
 
 void TS::test_flip_val() {
 	for (int j = 0; j < 500; j++) {
@@ -248,25 +246,31 @@ void TS::test_flip_val() {
 // Steepest ascent local search
 
 
-SALS::SALS(Labs l) : Solver(l), current(l.N) { }
+SALS::SALS(Labs l) : Solver(l), S(l.N) { }
 
 SALS::SALS(const SALS& s) : SALS(s.labs) { }
 
-bool SALS::run(long long timeout) {
+bool SALS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
+	//copied from TS
+	int var_factor = uni_dis_N(gen) / 2;
+	int var_factor_sign = var_factor - var_factor / 2;
+	int max_itr = labs.N + var_factor_sign;
 
-	double tmp_opt = labs.F(current);
+	if (rand_S) S.randomise(); // otherwise use the start value provided
+
+	double tmp_opt = labs.F(S);
 	Bvec S_plus(labs.N);
 
 	record_begin();
-	for(int i = 0; true; ++i) {
+	for(int i = 0; (use_timeout ? true : i < max_itr); ++i) {
 		double f_plus = std::numeric_limits<double>::min();
-		sbm(current);
-		init_flip_value(current);
+		sbm(S);
+		init_flip_value(S);
 		for(int j = 0; j < labs.N; ++j) {
-			current.flip_bit(j);
-			Bvec neighbor = current;
+			S.flip_bit(j);
+			Bvec neighbor = S;
 			double f_neighbour = flip_value(j);
-			current.flip_bit(j);
+			S.flip_bit(j);
 			if(f_neighbour > f_plus) {
 				f_plus = f_neighbour;
 				S_plus = neighbor;
@@ -274,13 +278,13 @@ bool SALS::run(long long timeout) {
 
 			if(f_plus > tmp_opt) {
 				tmp_opt = f_plus;
-				current = S_plus;
-				init_flip_value(current);
+				S = S_plus;
+				init_flip_value(S);
 			}
 		}
 
 		if(tmp_opt > opt) {
-			opt_vec = current;
+			opt_vec = S;
 			opt = tmp_opt;
 			record_current();
 		}
@@ -291,8 +295,10 @@ bool SALS::run(long long timeout) {
 			return false;
 		}
 	}
+	return false;
 }
-bool SALS::runOnce() { assert(false); }
+bool SALS::run(long long timeout) { return runInternal(timeout,true,true); }
+void SALS::runFromS(Bvec& s) { S = s; runInternal(0,false,false); }
 
 std::string SALS::get_name() const { return "sals"; }
 Solver* SALS::clone() const { return new SALS(*this); }
@@ -313,6 +319,8 @@ MA::MA(Labs l, bool isTS)
 	ppl_val = std::vector<double>(popsize);
 	offsprings = std::vector<Bvec> (popsize, Bvec(l.N));
 	off_val = std::vector<double>(popsize);
+	ppl_val = std::vector<double>(popsize);
+	uni_dis_popsize = std::uniform_int_distribution<int>(0,popsize-1); // [0,popsize-1]
 }
 
 MA::MA(const MA& s) : MA(s.labs, s.isTS) { }
@@ -331,34 +339,33 @@ bool MA::run(long long timeout) {
 	}
 
 	record_begin();
-	for(int k = 0; true; ++k) {
+	for(int k = 0; true; k++) {
 		for(size_t i = 0; i < offsprings.size(); ++i) {
 			double rnd = uni_dis_one(gen);
 			if(rnd <= px) {
-				auto parent1 = select_parent();
-				auto parent2 = select_parent();
-				uni_crossover(offsprings[i], parent1, parent2);
-			} else offsprings[i] = select_parent();
+				uni_crossover( offsprings[i]
+							 , ppl[uni_dis_popsize(gen)]
+							 , ppl[uni_dis_popsize(gen)]);
+			} else {
+				offsprings[i] = ppl[uni_dis_popsize(gen)];
+			}
 
 			rnd = uni_dis_one(gen);
 			if(rnd <= pm) sbm(offsprings[i]);
 
 			if (isTS) {
-				ts.set_S(offsprings[i]);
-				ts.runOnce();
+				ts.runFromS(offsprings[i]);
 				labs.calls_num += ts.get_Labs().calls_num;
 				offsprings[i] = ts.get_opt_vec();
 				off_val[i] = ts.get_opt();
 				ts.reset();
+			} else {
+				sals.runFromS(offsprings[i]);
+				labs.calls_num += sals.get_Labs().calls_num;
+				offsprings[i] = sals.get_opt_vec();
+				off_val[i] = sals.get_opt();
+				sals.reset();
 			}
-			//	else {
-			//		sals.set_S(offsprings[i]);
-			//		sals.runOne
-			//		labs.calls_num += sals.get_Labs().calls_num;
-			//		offsprings[i] = sals.get_opt_vec();
-			//		off_val[i] = sals.get_opt();
-			//		sals.reset();
-			//	}
 		}
 
 		// Replace
@@ -388,9 +395,4 @@ bool MA::run(long long timeout) {
 			return false;
 		}
 	}
-}
-
-Bvec& MA::select_parent() {
-	int rnd_index = uni_dis_N(gen);
-	return ppl[rnd_index];
 }

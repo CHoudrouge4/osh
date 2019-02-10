@@ -71,10 +71,8 @@ public:
 	std::string get_name() const;
 
 	bool run(long long timeout);
-	bool runOnce(); // Runs once
+	void runFromS(Bvec& s); // Runs once
 
-
-	void set_S(const Bvec s);
 	void test_flip_val();
 
 private:
@@ -84,7 +82,7 @@ private:
 
 	// If use_timeout is set, it'll use the timeout and work as a
 	// normal solver. Otherwise it does max_itr.
-	bool runInternal(long long timeout, bool use_timeout);
+	bool runInternal(long long timeout, bool use_timeout, bool rand_S);
 };
 
 class SALS : public Solver {
@@ -95,11 +93,11 @@ public:
 	std::string get_name() const;
 
 	bool run(long long timeout);
-	bool runOnce(); // Runs once
+	void runFromS(Bvec& S); // Runs once
 
 private:
-	Bvec current;
-	bool runInternal(long long timeout, bool use_timeout);
+	Bvec S;
+	bool runInternal(long long timeout, bool use_timeout, bool rand_S);
 };
 
 class MA : public Solver {
@@ -127,6 +125,7 @@ private:
 	std::vector<Bvec> offsprings;
 	std::vector<double> ppl_val;
 	std::vector<double> off_val;
+	std::uniform_int_distribution<int> uni_dis_popsize; // [0,popsize-1]
 
 	Bvec& select_parent();
 };

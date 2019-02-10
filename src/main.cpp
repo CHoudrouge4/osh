@@ -146,10 +146,10 @@ void test_MA() {
 
 void big_experiment() {
 	// Should run for 9.375 hours at most?
-	int threads_num = 8;
-	int sample_size = 50;
+	int threads_num = 3;
+	int sample_size = 10;
 	int timeout = 90000;
-	int nLo = 15;
+	int nLo = 30;
 	int nHi = 40;
 	Runner r;
 
@@ -163,14 +163,14 @@ void big_experiment() {
 		Solver* ts = new TS(l);
 		solvers.push_back(make_pair(ts,timeout));
 
-		Solver* sals = new SALS(l);
-		solvers.push_back(make_pair(sals,timeout));
+		//Solver* sals = new SALS(l);
+		//solvers.push_back(make_pair(sals,timeout));
 
-		//		Solver* ma_ts = new MA(l,true);
-		//		solvers.push_back(make_pair(ma_ts,timeout));
-		//
-		//		Solver* ma_sals = new MA(l,false);
-		//		solvers.push_back(make_pair(ma_sals,timeout));
+		Solver* ma_ts = new MA(l,true);
+		solvers.push_back(make_pair(ma_ts,timeout));
+
+		Solver* ma_sals = new MA(l,false);
+		solvers.push_back(make_pair(ma_sals,timeout));
 	}
 
 	r.execute(solvers, threads_num, sample_size, "plotData/ts_sals_15-40");
