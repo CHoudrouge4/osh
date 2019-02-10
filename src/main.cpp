@@ -135,7 +135,7 @@ void test_MA() {
 
 	Labs l(n);
 	cout << "Optimum: " << l.optF << "\n";
-	MA ma(l, true);
+	MA ma(l);
 
 	Runner r;
 	vector<pair<Solver*, long long>> solvers;
@@ -163,14 +163,11 @@ void big_experiment() {
 		Solver* ts = new TS(l);
 		solvers.push_back(make_pair(ts,timeout));
 
-		//Solver* sals = new SALS(l);
-		//solvers.push_back(make_pair(sals,timeout));
+		Solver* sals = new SALS(l);
+		solvers.push_back(make_pair(sals,timeout));
 
-		//Solver* ma_ts = new MA(l,true);
-		//solvers.push_back(make_pair(ma_ts,timeout));
-
-		//Solver* ma_sals = new MA(l,false);
-		//solvers.push_back(make_pair(ma_sals,timeout));
+		Solver* ma = new MA(l);
+		solvers.push_back(make_pair(ma,timeout));
 	}
 
 	r.execute(solvers, threads_num, sample_size, "plotData/ts_sals_15-40");
