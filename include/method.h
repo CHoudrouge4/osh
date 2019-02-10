@@ -118,6 +118,7 @@ private:
 	SALS sals;
 
 	const int popsize;
+	const int offsize;
 	const double px;
 	const double pm;
 

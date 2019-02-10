@@ -2,6 +2,7 @@
 #include "labs.h"
 #include <cstdlib>
 #include <array>
+#include <unordered_set>
 #include <functional>
 #include <algorithm>
 #include <cmath>
@@ -172,6 +173,8 @@ bool TS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
 	const int extra_tabu = max_itr/50;
 	std::uniform_int_distribution<int> urand(0, std::max(extra_tabu - 1, 1));
 
+	for (size_t i = 0; i < M.size(); i++) { M[i] = 0; }
+
 	// otherwise use the start value provided
 	if (rand_S) { opt_vec.randomise(); }
 	opt = labs.F(opt_vec);
@@ -180,7 +183,7 @@ bool TS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
 	Bvec S = opt_vec;
 
 	record_begin();
-	for(int k = 0; use_timeout ? true : (k < max_itr); k++) {
+	for(int k = 0; use_timeout ? true : (k < 5000*max_itr); k++) {
 		Bvec S_plus = S;
 		int index = 0;
 
@@ -312,14 +315,14 @@ MA::MA(Labs l, bool isTS)
 	, isTS(isTS)
 	, ts(TS(l))
 	, sals(SALS(l))
-	, popsize(100)
+	, popsize(10)
+	, offsize(150)
 	, px(0.9)
 	, pm(1/((double)l.N)) {
 	ppl = std::vector<Bvec> (popsize, Bvec(l.N));
 	ppl_val = std::vector<double>(popsize);
-	offsprings = std::vector<Bvec> (popsize, Bvec(l.N));
-	off_val = std::vector<double>(popsize);
-	ppl_val = std::vector<double>(popsize);
+	offsprings = std::vector<Bvec> (offsize, Bvec(l.N));
+	off_val = std::vector<double>(offsize);
 	uni_dis_popsize = std::uniform_int_distribution<int>(0,popsize-1); // [0,popsize-1]
 }
 
@@ -333,14 +336,18 @@ std::string MA::get_name() const {
 }
 
 bool MA::run(long long timeout) {
+
+	// Cache for moving optimums from offsprings to population
+	std::unordered_set<int> cache;
+
 	for(size_t i = 0; i < ppl.size(); ++i) {
-		sbm(ppl[i]);
+		ppl[i].randomise();
 		ppl_val[i] = labs.F(ppl[i]);
 	}
 
 	record_begin();
 	for(int k = 0; true; k++) {
-		for(size_t i = 0; i < offsprings.size(); ++i) {
+		for(int i = 0; i < offsize; ++i) {
 			double rnd = uni_dis_one(gen);
 			if(rnd <= px) {
 				uni_crossover( offsprings[i]
@@ -368,25 +375,37 @@ bool MA::run(long long timeout) {
 			}
 		}
 
-		// Replace
-		for(size_t i = 0; i < ppl.size(); ++i) {
-			if (off_val[i] >= ppl_val[i]) {
-				ppl[i] = offsprings[i];
-				ppl_val[i] = off_val[i];
+		// Replace (put 'popsize' optimal values from offsprings to pop)
+		cache.clear();
+		for(int i = 0; i < popsize; i++) {
+			int best_index = 0;
+			int best_val = 0;
+			for (int j = 0; j < offsize; j++) {
+				bool not_in_cache = cache.find(j) == cache.end();
+				if (off_val[i] > best_val && not_in_cache) {
+					best_index = i;
+					best_val = off_val[i];
+				}
 			}
+			cache.insert(best_index);
+			ppl[i] = offsprings[best_index];
+			ppl_val[i] = off_val[best_index];
 		}
 
 		// Get optimums
-		int index = 0;
 		auto oldOpt = opt;
-		for(size_t i = 1; i < ppl.size(); ++i) {
+		int index = 0;
+		for(int i = 1; i < popsize; i++) {
 			if(opt < ppl_val[i]) {
 				opt = ppl_val[i];
 				index = i;
 			}
 		}
 		opt_vec = ppl[index];
-		if (opt > oldOpt) record_current();
+		if (opt > oldOpt) {
+			std::cout << "UP\n";
+			record_current();
+		}
 
 
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
