@@ -208,10 +208,14 @@ bool TS::runInternal(long long timeout, bool use_timeout) {
 			record_current();
 		}
 
-		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
+		if (opt == labs.optF) {
+			running_time = get_running_time_ms();
+			return true;
+		}
 		if (i % 50 == 0 && get_running_time_ms() > timeout) {
 			running_time = get_running_time_ms();
 			return false;
+			std::cout << "Timeouted\n";
 		}
 	}
 	return false;
@@ -297,10 +301,8 @@ bool MA::run(long long timeout) {
 		}
 
 		// Get optimums
-		auto newOpt = ppl_val[0];
-		if (newOpt > opt) { record_current(); }
-		opt = newOpt;
 		int index = 0;
+		auto oldOpt = opt;
 		for(size_t i = 1; i < ppl.size(); ++i) {
 			if(opt < ppl_val[i]) {
 				opt = ppl_val[i];
@@ -308,6 +310,7 @@ bool MA::run(long long timeout) {
 			}
 		}
 		opt_vec = ppl[index];
+		if (opt > oldOpt) record_current();
 
 
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }

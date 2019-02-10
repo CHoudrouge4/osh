@@ -142,6 +142,7 @@ void test_MA() {
 	const int sample_size = 20;
 
 	Labs l(n);
+	cout << "Optimum: " << l.optF << "\n";
 	MA ma(l);
 
 	Runner r;
