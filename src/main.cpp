@@ -31,10 +31,10 @@ void compareMuLambdas(int n) {
 	vector<vector<statItem>> plots;
 
 	vector<tuple<MuLambda, int>> configs =
-		{ make_tuple(MuLambda(l, 50, 100, 0.6),   20000)
-		, make_tuple(MuLambda(l, 50, 100, 0.9),   20000)
-		, make_tuple(MuLambda(l, 50, 100, 0.95),  20000)
-		, make_tuple(MuLambda(l, 100, 200, 0.99), 20000)
+		{ make_tuple(MuLambda(l, 50, 100, 0.6),  20000)
+		, make_tuple(MuLambda(l, 50, 100, 0.9),  20000)
+		, make_tuple(MuLambda(l, 50, 100, 0.95), 20000)
+		, make_tuple(MuLambda(l, 10, 150, 0.99), 20000)
 		};
 
 	for (uint i = 0; i < configs.size(); i++) {
@@ -158,18 +158,12 @@ void test_ASLS() {
 }
 
 void test_MA() {
-	const int n = 41;
+	const int n = 25;
 	Labs l(n);
-	const int popsize = 100;
-	double px = 0.8;
-	double pm = 0.3;
-	const int max_itr = 100;
-	MA s(l, popsize, px, pm);
-	s.set_max_itr(max_itr);
+	MA s(l);
 
-	s.run(300000);
-	s.get_optimums();
-	std::cout << "MA F 1: " << l.F(s.get_opt_vec()) << '\n';
+	s.run(10000);
+	std::cout << "MA F 1: " << s.get_opt() << '\n';
 	s.reset();
 
 //	dumpStats(plots,"ts_stat");
@@ -177,15 +171,15 @@ void test_MA() {
 
 void predict_timeout_sa() {
 	int threads_num = 3;
-	int sample_size = 40;
+	int sample_size = 20;
 	int timeout = 60000;
-	int nLo = 15;
-	int nHi = 28;
+	int nLo = 25;
+	int nHi = 25;
 	Runner r;
 
 	vector<pair<Solver*, long long>> solvers;
-	for (int n = nLo; n < nHi; n++) {
-		SA* sa = new SA(Labs(n), 0.75, 0.5);
+	for (int n = nLo; n <= nHi; n++) {
+		SA* sa = new SA(Labs(n), 0.75, 0.9);
 		sa->set_initial_tempreature(10000);
 		solvers.push_back(make_pair(sa,timeout));
 	}
@@ -213,14 +207,15 @@ void test_sa_param_select() {
 int main () {
 	//measure_SA(25);
 	//simpleDemo();
-	//compareMuLambdas(30);
+	//compareMuLambdas(25);
 	//testing_SA();
 	//test_TS();
 	//test_ASLS();
 	//measure_SA(25, 2);
 	//predict_timeout_sa();
+	test_MA();
 
 	//std::cout << rand() << '\n';
 	//std::cout << rand() << '\n';
-	test_sa_param_select();
+	//test_sa_param_select();
 }

@@ -8,6 +8,8 @@
 #include <cassert>
 #include <limits>
 
+
+
 // 1 + 1
 
 OnePlusOne::OnePlusOne(Labs labs): Solver(labs), tmp_opt(labs.N) {}
@@ -37,6 +39,8 @@ bool OnePlusOne::run(long long timeout) {
 		}
 	}
 }
+
+
 
 // Mu Lambda
 
@@ -89,6 +93,8 @@ bool MuLambda::run(long long timeout) {
 		}
 	}
 }
+
+
 
 // Simulated annealing
 
@@ -159,15 +165,19 @@ void SA::select_params() {
 	double pre_opt = opt;
 	int i = 0;
 	while(true) {
-			one_step(val, constraints, beta, epsilon, timeout);
-			if(std::abs(opt - pre_opt) <= 0.1 || i == 1000) { break;}
-			pre_opt = opt;
-			i++;
+		one_step(val, constraints, beta, epsilon, timeout);
+		if(std::abs(opt - pre_opt) <= 0.1 || i == 1000) { break;}
+		pre_opt = opt;
+		i++;
 	}
 	set_params(val);
 }
 
-void SA::one_step(std::vector<double> &val, const std::vector<interval> &constraints, double beta, double epsilon, const int64_t timeout) {
+void SA::one_step(std::vector<double> &val
+				  , const std::vector<interval> &constraints
+				  , double beta
+				  , double epsilon
+				  , const int64_t timeout) {
 	for(size_t j = 0; j < val.size(); ++j) {
 		double df = finite_difference(val, j, epsilon, timeout);
 		val[j] += beta * df;
@@ -178,17 +188,19 @@ void SA::one_step(std::vector<double> &val, const std::vector<interval> &constra
 	run(timeout);
 }
 
-double SA::finite_difference(std::vector<double> &val, const size_t j, const double epsilon,
-																												const int64_t timeout) {
-		set_params(val);
-		run(timeout);
-		double f = opt;
-		val[j] += epsilon;
-		set_params(val);
-		run(timeout);
-		val[j] -= epsilon;
-		double fh = opt;
-		return (fh - f) / epsilon;
+double SA::finite_difference(std::vector<double> &val
+							 , const size_t j
+							 , const double epsilon
+							 , const int64_t timeout) {
+	set_params(val);
+	run(timeout);
+	double f = opt;
+	val[j] += epsilon;
+	set_params(val);
+	run(timeout);
+	val[j] -= epsilon;
+	double fh = opt;
+	return (fh - f) / epsilon;
 }
 
 void SA::set_params(std::vector<double> & params) {
@@ -226,6 +238,10 @@ std::vector<double> SA::get_params() {
 	return v;
 }
 
+
+
+// Tabu search
+
 TS::TS(Labs l, const int max_itr) : Solver(l), max_itr(max_itr), S(labs.N) {
 	assert(max_itr >= 1);
 	M = std::vector<int>(l.N, 0);
@@ -241,12 +257,12 @@ TS::TS(const TS& s) : TS(s.labs, s.max_itr) {
 TS* TS::clone() const { return new TS(*this); }
 std::string TS::get_name() const { return "tabu"; }
 
-bool TS::run(long long timeout) {
+bool TS::runInternal(long long timeout, bool use_timeout) {
 	const int min_tabu = max_itr/10;
 	const int extra_tabu = max_itr/50;
 	std::uniform_int_distribution<int> urand(0, std::max(extra_tabu - 1, 1));
 	record_begin();
-	for(int i = 0; true; ++i) {
+	for(int i = 0; use_timeout ? true : (i < max_itr); ++i) {
 		Bvec opt_vec_current = S;
 		double opt_current = labs.F(opt_vec_current);
 		Bvec S_plus = Bvec(labs.N);
@@ -289,100 +305,10 @@ bool TS::run(long long timeout) {
 	return false;
 }
 
+bool TS::run(long long timeout) { return runInternal(timeout,true); }
+
 void TS::set_max_itr(const int itr) { max_itr = itr; }
 void TS::set_S(const Bvec s) { S = s; }
-
-MA::MA(Labs l, const int popsize, const double px, const double pm)
-	: Solver(l)
-	, popsize(popsize)
-	, px(px)
-	, pm(pm) {
-	ppl = std::vector<Bvec> (popsize, Bvec(l.N));
-	ppl_val = std::vector<double>(popsize);
-	offsprings = std::vector<Bvec> (popsize, Bvec(l.N));
-	off_val = std::vector<double>(popsize);
-}
-
-MA::MA(const MA& s) : MA(s.labs, s.popsize, s.px, s.pm) {
-	this->ppl = s.ppl;
-	this->offsprings = s.offsprings;
-	this->ppl_val = s.ppl_val;
-	this->off_val = s.off_val;
-}
-
-MA* MA::clone() const { return new MA(*this); }
-
-std::string MA::get_name() const { return "ma"; }
-
-bool MA::run(long long timeout) {
-	for(size_t i = 0; i < ppl.size(); ++i) {
-		sbm(ppl[i]);
-		ppl_val[i] = labs.F(ppl[i]);
-	}
-
-	TS local_search(this->labs, max_itr);
-
-	record_begin();
-	// TODO don't check running time every iteration
-	// TODO use record_current
-	for(int k = 0; true; ++k) {
-//	while(get_running_time_ms() < timeout)
-		for(size_t i = 0; i < offsprings.size(); ++i) {
-			double rnd = uni_dis_one(gen);
-			if(rnd <= px) {
-				auto parent1 = select_parent();
-				auto parent2 = select_parent();
-				uni_crossover(offsprings[i], parent1, parent2);
-			} else offsprings[i] = select_parent();
-
-			rnd = uni_dis_one(gen);
-			if(rnd <= pm) sbm(offsprings[i]);
-
-			local_search.set_S(offsprings[i]);
-			local_search.run(timeout);
-			offsprings[i] = local_search.get_opt_vec();
-			off_val[i] = local_search.get_opt();
-		}
-
-		replace();
-		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
-		if (k % 50 == 0 && get_running_time_ms() > timeout) {
-			running_time = get_running_time_ms();
-			return false;
-		}
-		get_optimums();
-		record_current();
-	}
-
-	return false;
-}
-
-Bvec MA::select_parent() {
-	int rnd_index = uni_dis_N(gen);
-	return ppl[rnd_index];
-}
-
-void MA::replace() {
-	for(size_t i = 0; i < ppl.size(); ++i)
-		if(off_val[i] >= ppl_val[i]) {
-			ppl[i] = offsprings[i];
-			ppl_val[i] = off_val[i];
-		}
-}
-
-void MA::get_optimums() {
-	opt = ppl_val[0];
-	int index = 0;
-	for(size_t i = 1; i < ppl.size(); ++i) {
-		if(opt < ppl_val[i]) {
-			opt = ppl_val[i];
-			index = i;
-		}
-	}
-	opt_vec = ppl[index];
-}
-
-void MA::set_max_itr(const int itr) { max_itr = itr; }
 
 void TS::test_flip_val() {
 	for (int j = 0; j < 500; j++) {
@@ -400,14 +326,105 @@ void TS::test_flip_val() {
 	}
 }
 
+
+
+
+// Memetic algorithm
+
+MA::MA(Labs l)
+	: Solver(l)
+	, popsize(100)
+	, px(0.9)
+	, pm(1/((double)l.N)) {
+	ppl = std::vector<Bvec> (popsize, Bvec(l.N));
+	ppl_val = std::vector<double>(popsize);
+	offsprings = std::vector<Bvec> (popsize, Bvec(l.N));
+	off_val = std::vector<double>(popsize);
+}
+
+MA::MA(const MA& s) : MA(s.labs) { }
+
+MA* MA::clone() const { return new MA(*this); }
+
+std::string MA::get_name() const { return "ma"; }
+
+bool MA::run(long long timeout) {
+	for(size_t i = 0; i < ppl.size(); ++i) {
+		sbm(ppl[i]);
+		ppl_val[i] = labs.F(ppl[i]);
+	}
+
+	int max_itr = 1000; // TODO set up to random
+
+	TS local_search(this->labs, max_itr);
+
+	// TODO record_current is broken! We don't record cntProb!
+
+	record_begin();
+	for(int k = 0; true; ++k) {
+		for(size_t i = 0; i < offsprings.size(); ++i) {
+			double rnd = uni_dis_one(gen);
+			if(rnd <= px) {
+				auto parent1 = select_parent();
+				auto parent2 = select_parent();
+				uni_crossover(offsprings[i], parent1, parent2);
+			} else offsprings[i] = select_parent();
+
+			rnd = uni_dis_one(gen);
+			if(rnd <= pm) sbm(offsprings[i]);
+
+			local_search.set_S(offsprings[i]);
+			local_search.runInternal(0, false);
+			offsprings[i] = local_search.get_opt_vec();
+			off_val[i] = local_search.get_opt();
+		}
+
+		// Replace
+		for(size_t i = 0; i < ppl.size(); ++i) {
+			if (off_val[i] >= ppl_val[i]) {
+				ppl[i] = offsprings[i];
+				ppl_val[i] = off_val[i];
+			}
+		}
+
+		// Get optimums
+		auto newOpt = ppl_val[0];
+		if (newOpt > opt) { record_current(); }
+		opt = newOpt;
+		int index = 0;
+		for(size_t i = 1; i < ppl.size(); ++i) {
+			if(opt < ppl_val[i]) {
+				opt = ppl_val[i];
+				index = i;
+			}
+		}
+		opt_vec = ppl[index];
+
+
+		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }
+		if (k % 50 == 0 && get_running_time_ms() > timeout) {
+			running_time = get_running_time_ms();
+			return false;
+		}
+	}
+}
+
+Bvec& MA::select_parent() {
+	int rnd_index = uni_dis_N(gen);
+	return ppl[rnd_index];
+}
+
+// Steepest ascent local search
+
+
 SALS::SALS(const Labs & l) : Solver(l), current(l.N) {
 	sbm(current);
 }
 
 SALS::SALS(const SALS& s) : SALS(s.labs) {
-		this->opt = s.opt;
- 		this->opt_vec = s.opt;
-		this->current = s.current;
+	this->opt = s.opt;
+	this->opt_vec = s.opt;
+	this->current = s.current;
 }
 
 bool SALS::run(long long timeout) {

@@ -90,6 +90,9 @@ public:
 	std::string get_name() const;
 
 	bool run(long long timeout);
+	// If use_timeout is set, it'll use the timeout and work as a
+	// normal solver. Otherwise it does max_itr.
+	bool runInternal(long long timeout, bool use_timeout);
 
 	void set_max_itr(const int);
 	void set_S(const Bvec s);
@@ -104,30 +107,25 @@ private:
 class MA : public Solver {
 
 public:
-	MA(Labs, const int, const double, const double);
+	MA(Labs);
 	MA(const MA&);
 	MA* clone() const;
 
 	std::string get_name() const;
 
 	bool run(long long timeout);
-	void get_optimums();
-	void set_max_itr(const int itr);
 
 private:
-
 	const int popsize;
 	const double px;
 	const double pm;
-	int max_itr = 1000; // TODO use timeout we need for TS
 
 	std::vector<Bvec> ppl;
 	std::vector<Bvec> offsprings;
 	std::vector<double> ppl_val;
 	std::vector<double> off_val;
 
-	Bvec select_parent();
-	void replace();
+	Bvec& select_parent();
 };
 
 class SALS : public Solver {
@@ -138,6 +136,7 @@ public:
 	bool run(long long timeout);
 	std::string get_name() const;
 	Solver* clone() const;
+
 private:
 	Bvec current;
 };
