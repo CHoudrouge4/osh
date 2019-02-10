@@ -251,21 +251,20 @@ SALS::SALS(Labs l) : Solver(l) { }
 
 SALS::SALS(const SALS& s) : SALS(s.labs) { }
 
-bool SALS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
+bool SALS::run(long long timeout) {
 
-	if (rand_S) { opt_vec.randomise(); }
+	opt_vec.randomise();
 	opt = labs.F(opt_vec);
 
 	Bvec S_plus(labs.N);
 
 	Bvec tmp_vec = opt_vec;
 
-	bool improvement = false;
 	record_begin();
-	for(int i = 0; (use_timeout ? true : (not improvement)); i++) {
+	for(int i = 0; true; i++) {
 		double f_plus = std::numeric_limits<double>::min();
 
-		if (use_timeout) { sbm(tmp_vec); }
+		sbm(tmp_vec);
 
 		init_flip_value(tmp_vec);
 		int index = 0;
@@ -278,7 +277,6 @@ bool SALS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
 		}
 
 		if(f_plus > opt) {
-			improvement = true;
 			opt_vec = tmp_vec;
 			opt_vec.flip_bit(index);
 
@@ -293,10 +291,7 @@ bool SALS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
 			return false;
 		}
 	}
-	return false;
 }
-bool SALS::run(long long timeout) { return runInternal(timeout,true,true); }
-void SALS::runFromS(Bvec& s) { opt_vec = s; runInternal(0,false,false); }
 
 std::string SALS::get_name() const { return "sals"; }
 Solver* SALS::clone() const { return new SALS(*this); }
@@ -305,11 +300,9 @@ Solver* SALS::clone() const { return new SALS(*this); }
 
 // Memetic algorithm
 
-MA::MA(Labs l, bool isTS)
+MA::MA(Labs l)
 	: Solver(l)
-	, isTS(isTS)
 	, ts(TS(l))
-	, sals(SALS(l))
 	, popsize(10)
 	, offsize(50)
 	, px(0.9)
@@ -321,14 +314,11 @@ MA::MA(Labs l, bool isTS)
 	uni_dis_popsize = std::uniform_int_distribution<int>(0,popsize-1); // [0,popsize-1]
 }
 
-MA::MA(const MA& s) : MA(s.labs, s.isTS) { }
+MA::MA(const MA& s) : MA(s.labs) { }
 
 MA* MA::clone() const { return new MA(*this); }
 
-std::string MA::get_name() const {
-	std::string prefix = "ma_";
-	return prefix + (isTS ? "ts" : "sals");
-}
+std::string MA::get_name() const { return "ma"; }
 
 bool MA::run(long long timeout) {
 
@@ -357,20 +347,12 @@ bool MA::run(long long timeout) {
 
 			if(uni_dis_one(gen) <= pm) sbm(offsprings[i], 2);
 
-			if (isTS) {
-				ts.runFromS(offsprings[i]);
-				labs.calls_num += ts.get_Labs().calls_num;
-				assert(ts.get_opt() >= labs.F(offsprings[i]));
-				offsprings[i] = ts.get_opt_vec();
-				off_val[i] = ts.get_opt();
-				ts.reset();
-			} else {
-				sals.runFromS(offsprings[i]);
-				labs.calls_num += sals.get_Labs().calls_num;
-				offsprings[i] = sals.get_opt_vec();
-				off_val[i] = sals.get_opt();
-				sals.reset();
-			}
+			ts.runFromS(offsprings[i]);
+			labs.calls_num += ts.get_Labs().calls_num;
+			assert(ts.get_opt() >= labs.F(offsprings[i]));
+			offsprings[i] = ts.get_opt_vec();
+			off_val[i] = ts.get_opt();
+			ts.reset();
 		}
 
 		// Get optimums

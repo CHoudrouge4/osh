@@ -91,16 +91,12 @@ public:
 	std::string get_name() const;
 
 	bool run(long long timeout);
-	void runFromS(Bvec& S); // Runs once
-
-private:
-	bool runInternal(long long timeout, bool use_timeout, bool rand_S);
 };
 
 class MA : public Solver {
 
 public:
-	MA(Labs, bool isTS);
+	MA(Labs);
 	MA(const MA&);
 	MA* clone() const;
 
@@ -109,10 +105,7 @@ public:
 	bool run(long long timeout);
 
 private:
-	// This is so conceptually wrong that I won't even comment on it
-	bool isTS; // if true, we use ts as a subroutine, otherwise sals
 	TS ts;
-	SALS sals;
 
 	const int popsize;
 	const int offsize;
