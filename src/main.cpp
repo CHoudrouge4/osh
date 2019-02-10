@@ -171,9 +171,10 @@ void predict_timeout_sa() {
 }
 
 void big_experiment_1() {
+	// Should run for 9.375 hours at most?
 	int threads_num = 8;
 	int sample_size = 50;
-	int timeout = 60000;
+	int timeout = 90000;
 	int nLo = 15;
 	int nHi = 35;
 	Runner r;
@@ -188,6 +189,8 @@ void big_experiment_1() {
 		Solver* ts = new TS(l);
 		solvers.push_back(make_pair(ts,timeout));
 
+		Solver* ma = new MA(l);
+		solvers.push_back(make_pair(ma,timeout));
 	}
 
 	r.execute(solvers, threads_num, sample_size, "plotData/big_experiment_1");
@@ -203,6 +206,8 @@ int main () {
 	//test_ASLS();
 	//measure_SA(25, 2);
 	//predict_timeout_sa();
-	test_MA();
+	//test_MA();
 	//choose_SA_params();
+
+	big_experiment_1();
 }
