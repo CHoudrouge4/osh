@@ -71,9 +71,8 @@ public:
 	std::string get_name() const;
 
 	bool run(long long timeout);
-	// If use_timeout is set, it'll use the timeout and work as a
-	// normal solver. Otherwise it does max_itr.
-	bool runInternal(long long timeout, bool use_timeout);
+	bool runOnce(); // Runs once
+
 
 	void set_S(const Bvec s);
 	void test_flip_val();
@@ -82,25 +81,31 @@ private:
 	int max_itr; // TODO Use timeout
 	std::vector<int> M; // Tenure table, holds tabu data
 	Bvec S; // Temporary vector
+
+	// If use_timeout is set, it'll use the timeout and work as a
+	// normal solver. Otherwise it does max_itr.
+	bool runInternal(long long timeout, bool use_timeout);
 };
 
 class SALS : public Solver {
 public:
 	SALS(Labs);
 	SALS(const SALS& s);
+	Solver* clone() const;
+	std::string get_name() const;
 
 	bool run(long long timeout);
-	std::string get_name() const;
-	Solver* clone() const;
+	bool runOnce(); // Runs once
 
 private:
 	Bvec current;
+	bool runInternal(long long timeout, bool use_timeout);
 };
 
 class MA : public Solver {
 
 public:
-	MA(Labs);
+	MA(Labs, bool isTS);
 	MA(const MA&);
 	MA* clone() const;
 
@@ -109,6 +114,11 @@ public:
 	bool run(long long timeout);
 
 private:
+	// This is so conceptually wrong that I won't even comment on it
+	bool isTS; // if true, we use ts as a subroutine, otherwise sals
+	TS ts;
+	SALS sals;
+
 	const int popsize;
 	const double px;
 	const double pm;

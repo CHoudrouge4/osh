@@ -224,6 +224,7 @@ bool TS::runInternal(long long timeout, bool use_timeout) {
 }
 
 bool TS::run(long long timeout) { return runInternal(timeout,true); }
+bool TS::runOnce() { return runInternal(0,false); }
 
 void TS::set_S(const Bvec s) { S = s; }
 
@@ -291,6 +292,7 @@ bool SALS::run(long long timeout) {
 		}
 	}
 }
+bool SALS::runOnce() { assert(false); }
 
 std::string SALS::get_name() const { return "sals"; }
 Solver* SALS::clone() const { return new SALS(*this); }
@@ -299,8 +301,11 @@ Solver* SALS::clone() const { return new SALS(*this); }
 
 // Memetic algorithm
 
-MA::MA(Labs l)
+MA::MA(Labs l, bool isTS)
 	: Solver(l)
+	, isTS(isTS)
+	, ts(TS(l))
+	, sals(SALS(l))
 	, popsize(100)
 	, px(0.9)
 	, pm(1/((double)l.N)) {
@@ -310,19 +315,20 @@ MA::MA(Labs l)
 	off_val = std::vector<double>(popsize);
 }
 
-MA::MA(const MA& s) : MA(s.labs) { }
+MA::MA(const MA& s) : MA(s.labs, s.isTS) { }
 
 MA* MA::clone() const { return new MA(*this); }
 
-std::string MA::get_name() const { return "ma"; }
+std::string MA::get_name() const {
+	std::string prefix = "ma_";
+	return prefix + (isTS ? "ts" : "sals");
+}
 
 bool MA::run(long long timeout) {
 	for(size_t i = 0; i < ppl.size(); ++i) {
 		sbm(ppl[i]);
 		ppl_val[i] = labs.F(ppl[i]);
 	}
-
-	TS local_search(this->labs);
 
 	record_begin();
 	for(int k = 0; true; ++k) {
@@ -337,12 +343,22 @@ bool MA::run(long long timeout) {
 			rnd = uni_dis_one(gen);
 			if(rnd <= pm) sbm(offsprings[i]);
 
-			local_search.set_S(offsprings[i]);
-			local_search.runInternal(0, false);
-			labs.calls_num += local_search.get_Labs().calls_num;
-			offsprings[i] = local_search.get_opt_vec();
-			off_val[i] = local_search.get_opt();
-			local_search.reset();
+			if (isTS) {
+				ts.set_S(offsprings[i]);
+				ts.runOnce();
+				labs.calls_num += ts.get_Labs().calls_num;
+				offsprings[i] = ts.get_opt_vec();
+				off_val[i] = ts.get_opt();
+				ts.reset();
+			}
+			//	else {
+			//		sals.set_S(offsprings[i]);
+			//		sals.runOne
+			//		labs.calls_num += sals.get_Labs().calls_num;
+			//		offsprings[i] = sals.get_opt_vec();
+			//		off_val[i] = sals.get_opt();
+			//		sals.reset();
+			//	}
 		}
 
 		// Replace
