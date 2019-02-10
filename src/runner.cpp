@@ -78,7 +78,8 @@ void Runner::execute( std::vector<std::pair<Solver*,long long>> solvers
 		long long timeout = get<1>(solvers[i]);
 
 		std::cout << "Processing " + solver->get_name() +
-			", n = " + to_string(solver->get_N()) + "\n";
+			", n = " + to_string(solver->get_N()) + ", sample_size " <<
+			sample_size << "\n";
 
 		string run_dir =
 			experiment_dir + "/" + solver->get_name() + "/n_" +
@@ -100,12 +101,7 @@ void Runner::execute( std::vector<std::pair<Solver*,long long>> solvers
 		RunnerParams* d = &common;
 
 		std::vector<std::thread> t;
-
-		std::cout << "Running experiment, sample size = " << sample_size << std::endl;
-
 		std::vector<Solver*> solver_clones(threads_n);
-
-		cout << "Forking all the threads\n";
 		for (int j = 0; j < threads_n; j++) {
 			solver_clones[j] = solver->clone();
 			t.push_back(std::thread(perform_run, d, solver_clones[j]));
