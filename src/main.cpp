@@ -24,29 +24,40 @@ void dumpStats(vector<vector<statItem>> plots, string prefix) {
 	}
 }
 
-void compareMuLambdas(int n) {
+void choose_SA_params() {
+	int n = 22;
+	int threads_num = 1;
+	int sample_size = 20;
+
 	Labs l(n);
-	cout << "L = " << n << ", F = " << l.optF << "\n";
-
-	vector<vector<statItem>> plots;
-
-	vector<tuple<MuLambda, int>> configs =
-		{ make_tuple(MuLambda(l, 50, 100, 0.6),  20000)
-		, make_tuple(MuLambda(l, 50, 100, 0.9),  20000)
-		, make_tuple(MuLambda(l, 50, 100, 0.95), 20000)
-		, make_tuple(MuLambda(l, 10, 150, 0.99), 20000)
+	vector<SA> solvers =
+		{ SA(l, 0.9, 100)
+		, SA(l, 0.9, 500)
+		, SA(l, 0.9, 1000)
+		, SA(l, 0.9, 5000)
+		, SA(l, 0.9, 10000)
+		, SA(l, 0.9, 20000)
+		, SA(l, 0.5, 100)
+		, SA(l, 0.5, 500)
+		, SA(l, 0.5, 1000)
+		, SA(l, 0.5, 5000)
+		, SA(l, 0.5, 10000)
+		, SA(l, 0.5, 20000)
+		, SA(l, 0.1, 100)
+		, SA(l, 0.1, 500)
+		, SA(l, 0.1, 1000)
+		, SA(l, 0.1, 5000)
+		, SA(l, 0.1, 10000)
+		, SA(l, 0.1, 20000)
 		};
 
-	for (uint i = 0; i < configs.size(); i++) {
-		MuLambda s = get<0>(configs[i]);
-		int iters = get<1>(configs[i]);
-
-		s.run(iters);
-		cout << "mulambda " << i << ": " << l.F(s.get_opt_vec()) << '\n';
-		plots.push_back(s.stats);
-		s.reset();
+	Runner r;
+	vector<pair<Solver*, long long>> config;
+	for (uint i = 0; i < solvers.size(); i++) {
+		config.push_back(make_pair(&solvers[i],20000));
 	}
-	dumpStats(plots,"mulambda");
+
+	r.execute(config, threads_num, sample_size, "plotData/sa_param");
 }
 
 void simpleDemo() {
@@ -151,11 +162,11 @@ void predict_timeout_sa() {
 int main () {
 	//measure_SA(25);
 	//simpleDemo();
-	//compareMuLambdas(25);
 	//testing_SA();
 	//test_TS();
 	//test_ASLS();
 	//measure_SA(25, 2);
 	//predict_timeout_sa();
-	test_MA();
+	//test_MA();
+	choose_SA_params();
 }

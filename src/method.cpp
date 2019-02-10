@@ -107,7 +107,9 @@ SA::SA(const SA& s) : SA(s.labs, s.mu, s.t0) { }
 
 SA* SA::clone() const { return new SA(*this); }
 
-std::string SA::get_name() const { return "sa"; }
+std::string SA::get_name() const {
+	return "sa_" + std::to_string(mu) + "_" + std::to_string(t0);
+}
 
 bool SA::run(long long timeout) {
 	double t = t0;
