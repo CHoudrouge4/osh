@@ -69,6 +69,7 @@ long long Solver::get_running_time_ms() {
 void Solver::record_begin() {
 	stats.clear();
 	last_run_start = get_time_mcs();
+	record_current();
 }
 
 void Solver::record_current() {

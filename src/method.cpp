@@ -117,8 +117,8 @@ bool SA::run(long long timeout) {
 	sbm(s, labs.N);
 	opt = labs.F(opt_vec);
 
-	record_begin();
 	Bvec neighbor = s;
+	record_begin();
 	for (int i = 0; true; i++) {
 		neighbor = s;
 		sbm(neighbor, 1);
@@ -173,6 +173,7 @@ bool TS::runInternal(long long timeout, bool use_timeout) {
 	const int min_tabu = max_itr/10;
 	const int extra_tabu = max_itr/50;
 	std::uniform_int_distribution<int> urand(0, std::max(extra_tabu - 1, 1));
+
 	record_begin();
 	for(int i = 0; use_timeout ? true : (i < max_itr); ++i) {
 		Bvec opt_vec_current = S;
@@ -344,6 +345,7 @@ bool SALS::run(long long timeout) {
 	double tmp_opt = labs.F(current);
 	init_flip_value(current);
 	Bvec S_plus(labs.N);
+
 	record_begin();
 	for(int i = 0; true; ++i) {
 		double f_plus = std::numeric_limits<double>::min();

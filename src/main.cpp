@@ -110,14 +110,19 @@ void measure_SA(int n, int threads_num) {
 }
 
 void test_TS() {
-	Labs l(50);
-	TS s(l, 10);
-//	s.run(10000);
-//	std::cout << "TS F 1: " << l.F(s.get_opt_vec()) << '\n';
-//	s.reset();
+	const int n = 25;
+	const int timeout = 20000;
+	const int threads_num = 3;
+	const int sample_size = 20;
 
-	s.test_flip_val();
-//	dumpStats(plots,"ts_stat");
+	Labs l(n);
+	TS ts(l, 22);
+
+	Runner r;
+	vector<pair<Solver*, long long>> solvers;
+	solvers.push_back(make_pair(&ts, timeout));
+
+	r.execute(solvers, threads_num, sample_size, "plotData/ts_demo_run");
 }
 
 void test_ASLS() {
@@ -129,15 +134,19 @@ void test_ASLS() {
 }
 
 void test_MA() {
-	const int n = 25;
+	const int n = 22;
+	const int timeout = 20000;
+	const int threads_num = 3;
+	const int sample_size = 20;
+
 	Labs l(n);
-	MA s(l);
+	MA ma(l);
 
-	s.run(10000);
-	std::cout << "MA F 1: " << s.get_opt() << '\n';
-	s.reset();
+	Runner r;
+	vector<pair<Solver*, long long>> solvers;
+	solvers.push_back(make_pair(&ma, timeout));
 
-//	dumpStats(plots,"ts_stat");
+	r.execute(solvers, threads_num, sample_size, "plotData/ma_demo_run");
 }
 
 void predict_timeout_sa() {
@@ -163,10 +172,10 @@ int main () {
 	//measure_SA(25);
 	//simpleDemo();
 	//testing_SA();
-	//test_TS();
+	test_TS();
 	//test_ASLS();
 	//measure_SA(25, 2);
 	//predict_timeout_sa();
 	//test_MA();
-	choose_SA_params();
+	//choose_SA_params();
 }
