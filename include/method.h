@@ -84,6 +84,19 @@ private:
 	Bvec S; // Temporary vector
 };
 
+class SALS : public Solver {
+public:
+	SALS(Labs);
+	SALS(const SALS& s);
+
+	bool run(long long timeout);
+	std::string get_name() const;
+	Solver* clone() const;
+
+private:
+	Bvec current;
+};
+
 class MA : public Solver {
 
 public:
@@ -106,17 +119,4 @@ private:
 	std::vector<double> off_val;
 
 	Bvec& select_parent();
-};
-
-class SALS : public Solver {
-public:
-	SALS(const Labs &);
-	SALS(const SALS& s);
-
-	bool run(long long timeout);
-	std::string get_name() const;
-	Solver* clone() const;
-
-private:
-	Bvec current;
 };

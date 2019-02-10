@@ -127,14 +127,6 @@ void test_TS() {
 	// 9087 sec with 2N
 }
 
-void test_ASLS() {
-	Labs l(27);
-	SALS s(l);
-	s.run(10000);
-	std::cout << "TS F 1: " << s.get_opt() << '\n';
-	s.reset();
-}
-
 void test_MA() {
 	const int n = 25;
 	const int timeout = 20000;
@@ -199,16 +191,39 @@ void big_experiment_1() {
 	for (auto x : solvers) free(get<0>(x));
 }
 
+void big_experiment_simple() {
+	int threads_num = 3;
+	int sample_size = 50;
+	int timeout = 90000;
+	int nLo = 15;
+	int nHi = 40;
+	Runner r;
+
+	vector<pair<Solver*, long long>> solvers;
+	for (int n = nLo; n <= nHi; n++) {
+		Labs l(n);
+
+		//Solver* sals = new SALS(l);
+		//solvers.push_back(make_pair(sals,timeout));
+
+		Solver* ts = new TS(l);
+		solvers.push_back(make_pair(ts,timeout));
+	}
+
+	r.execute(solvers, threads_num, sample_size, "plotData/big_ex_simples");
+
+	for (auto x : solvers) free(get<0>(x));
+}
+
 int main () {
 	//measure_SA(25);
 	//simpleDemo();
 	//testing_SA();
 	//test_TS();
-	//test_ASLS();
 	//measure_SA(25, 2);
 	//predict_timeout_sa();
 	//test_MA();
 	//choose_SA_params();
 
-	big_experiment_1();
+	big_experiment_simple();
 }

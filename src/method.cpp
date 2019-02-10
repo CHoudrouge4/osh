@@ -180,11 +180,12 @@ bool TS::runInternal(long long timeout, bool use_timeout) {
 		Bvec S_plus = Bvec(labs.N);
 		int index = 0;
 		for(int k = 1; k <= max_itr; ++k) {
+			init_flip_value(S);
 			double f_plus = std::numeric_limits<double>::min();
 			for(int i = 0; i < labs.N; ++i) {
 				Bvec neighbor = S;
 				neighbor.flip_bit(i);
-				double f_neighbour = labs.F(neighbor);
+				double f_neighbour = flip_value(i);
 				if(k >= M[i] || f_neighbour > opt_current) {
 					if(f_neighbour > f_plus) {
 						f_plus = f_neighbour;
@@ -192,6 +193,7 @@ bool TS::runInternal(long long timeout, bool use_timeout) {
 						index = i;
 					}
 				}
+				neighbor.flip_bit(i);
 			}
 
 			S = S_plus;
@@ -241,6 +243,57 @@ void TS::test_flip_val() {
 	}
 }
 
+
+// Steepest ascent local search
+
+
+SALS::SALS(Labs l) : Solver(l), current(l.N) { }
+
+SALS::SALS(const SALS& s) : SALS(s.labs) { }
+
+bool SALS::run(long long timeout) {
+
+	double tmp_opt = labs.F(current);
+	Bvec S_plus(labs.N);
+
+	record_begin();
+	for(int i = 0; true; ++i) {
+		double f_plus = std::numeric_limits<double>::min();
+		sbm(current);
+		init_flip_value(current);
+		for(int j = 0; j < labs.N; ++j) {
+			current.flip_bit(j);
+			Bvec neighbor = current;
+			double f_neighbour = flip_value(j);
+			current.flip_bit(j);
+			if(f_neighbour > f_plus) {
+				f_plus = f_neighbour;
+				S_plus = neighbor;
+			}
+
+			if(f_plus > tmp_opt) {
+				tmp_opt = f_plus;
+				current = S_plus;
+				init_flip_value(current);
+			}
+		}
+
+		if(tmp_opt > opt) {
+			opt_vec = current;
+			opt = tmp_opt;
+			record_current();
+		}
+
+		if (opt == labs.optF) { running_time = get_running_time_ms(); return true;}
+		if (i % 50 == 0 && (get_running_time_ms() > timeout)) {
+			running_time = get_running_time_ms();
+			return false;
+		}
+	}
+}
+
+std::string SALS::get_name() const { return "sals"; }
+Solver* SALS::clone() const { return new SALS(*this); }
 
 
 
@@ -325,61 +378,3 @@ Bvec& MA::select_parent() {
 	int rnd_index = uni_dis_N(gen);
 	return ppl[rnd_index];
 }
-
-// Steepest ascent local search
-
-
-SALS::SALS(const Labs & l) : Solver(l), current(l.N) {
-	sbm(current);
-}
-
-SALS::SALS(const SALS& s) : SALS(s.labs) {
-	this->opt = s.opt;
-	this->opt_vec = s.opt;
-	this->current = s.current;
-}
-
-bool SALS::run(long long timeout) {
-
-	double tmp_opt = labs.F(current);
-	init_flip_value(current);
-	Bvec S_plus(labs.N);
-
-	record_begin();
-	for(int i = 0; true; ++i) {
-		double f_plus = std::numeric_limits<double>::min();
-		for(int j = 0; j < labs.N; ++j) {
-			current.flip_bit(j);
-			Bvec neighbor = current;
-			double f_neighbour = flip_value(j);
-			current.flip_bit(j);
-			if(f_neighbour > f_plus) {
-				f_plus = f_neighbour;
-				S_plus = neighbor;
-			}
-
-			if(f_plus > tmp_opt) {
-				tmp_opt = f_plus;
-				current = S_plus;
-				init_flip_value(current);
-				record_current();
-			}
-		}
-
-		if(tmp_opt >= opt) {
-			opt_vec = current;
-			opt = tmp_opt;
-		}
-
-		if (opt == labs.optF) { running_time = get_running_time_ms(); return true;}
-		if (i % 50 == 0 && (get_running_time_ms() > timeout)) {
-			running_time = get_running_time_ms();
-			return false;
-		}
-		sbm(current);
-		init_flip_value(current);
-	}
-}
-
-std::string SALS::get_name() const { return "sals"; }
-Solver* SALS::clone() const { return new SALS(*this); }
