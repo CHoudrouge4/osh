@@ -256,31 +256,46 @@ bool SALS::run(long long timeout) {
 	opt_vec.randomise();
 	opt = labs.F(opt_vec);
 
-	Bvec S_plus(labs.N);
-
-	Bvec tmp_vec = opt_vec;
+	Bvec S_star = opt_vec;
 
 	record_begin();
 	for(int i = 0; true; i++) {
-		double f_plus = std::numeric_limits<double>::min();
 
-		sbm(tmp_vec);
+		// Each time we start from something new
+		sbm(S_star);
 
-		init_flip_value(tmp_vec);
-		int index = 0;
-		for(int j = 0; j < labs.N; ++j) {
-			double f_neighbour = flip_value(j);
-			if(f_neighbour > f_plus) {
-				f_plus = f_neighbour;
-				index = j;
+		// Follow the steepest ascent path until we can, S_star
+		// moves from random to somewhat optimum.
+		double f_star = std::numeric_limits<double>::min();
+		bool improvement = false;
+		for (int k = 0; not improvement; k++) {
+			double f_plus = std::numeric_limits<double>::min();
+
+			// Search for the move
+			init_flip_value(S_star);
+			int index = 0;
+			for(int j = 0; j < labs.N; ++j) {
+				double f_neighbour = flip_value(j);
+				if(f_neighbour > f_plus) {
+					f_plus = f_neighbour;
+					index = j;
+					improvement = true;
+				}
 			}
+
+			// Make this move
+			if (f_plus > f_star) {
+				S_star.flip_bit(index);
+				f_star = f_plus;
+				improvement = true;
+			} else improvement = false;
 		}
 
-		if(f_plus > opt) {
-			opt_vec = tmp_vec;
-			opt_vec.flip_bit(index);
-
-			opt = f_plus;
+		// After an improvement round check whether this S_star is
+		// better than what we have.
+		if(f_star > opt) {
+			opt_vec = S_star;
+			opt = f_star;
 			record_current();
 		}
 
