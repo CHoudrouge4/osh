@@ -144,58 +144,9 @@ void test_MA() {
 	r.execute(solvers, threads_num, sample_size, "plotData/ma_demo_run");
 }
 
-void predict_timeout_sa() {
-	int threads_num = 3;
-	int sample_size = 20;
-	int timeout = 60000;
-	int nLo = 25;
-	int nHi = 25;
-	Runner r;
-
-	vector<pair<Solver*, long long>> solvers;
-	for (int n = nLo; n <= nHi; n++) {
-		SA* sa = new SA(Labs(n), 0.9, 10000);
-		solvers.push_back(make_pair(sa,timeout));
-	}
-
-	r.execute(solvers, threads_num, sample_size, "plotData/timeout_estimation_sa");
-
-	for (auto x : solvers) free(get<0>(x));
-}
-
-void big_experiment_1() {
+void big_experiment() {
 	// Should run for 9.375 hours at most?
 	int threads_num = 8;
-	int sample_size = 50;
-	int timeout = 90000;
-	int nLo = 15;
-	int nHi = 35;
-	Runner r;
-
-	vector<pair<Solver*, long long>> solvers;
-	for (int n = nLo; n <= nHi; n++) {
-		Labs l(n);
-
-		Solver* sa = new SA(l, 0.15, 15000);
-		solvers.push_back(make_pair(sa,timeout));
-
-		Solver* ts = new TS(l);
-		solvers.push_back(make_pair(ts,timeout));
-
-		Solver* ma_ts = new MA(l,true);
-		solvers.push_back(make_pair(ma_ts,timeout));
-
-		Solver* ma_sals = new MA(l,false);
-		solvers.push_back(make_pair(ma_sals,timeout));
-	}
-
-	r.execute(solvers, threads_num, sample_size, "plotData/big_experiment_1");
-
-	for (auto x : solvers) free(get<0>(x));
-}
-
-void big_experiment_simple() {
-	int threads_num = 3;
 	int sample_size = 50;
 	int timeout = 90000;
 	int nLo = 15;
@@ -206,14 +157,23 @@ void big_experiment_simple() {
 	for (int n = nLo; n <= nHi; n++) {
 		Labs l(n);
 
-		Solver* sals = new SALS(l);
-		solvers.push_back(make_pair(sals,timeout));
+		//Solver* sa = new SA(l, 0.15, 15000);
+		//solvers.push_back(make_pair(sa,timeout));
 
 		Solver* ts = new TS(l);
 		solvers.push_back(make_pair(ts,timeout));
+
+		Solver* sals = new SALS(l);
+		solvers.push_back(make_pair(sals,timeout));
+
+		//		Solver* ma_ts = new MA(l,true);
+		//		solvers.push_back(make_pair(ma_ts,timeout));
+		//
+		//		Solver* ma_sals = new MA(l,false);
+		//		solvers.push_back(make_pair(ma_sals,timeout));
 	}
 
-	r.execute(solvers, threads_num, sample_size, "plotData/big_ex_simples");
+	r.execute(solvers, threads_num, sample_size, "plotData/ts_sals_15-40");
 
 	for (auto x : solvers) free(get<0>(x));
 }
@@ -224,9 +184,8 @@ int main () {
 	//testing_SA();
 	//test_TS();
 	//measure_SA(25, 2);
-	//predict_timeout_sa();
 	//test_MA();
 	//choose_SA_params();
 
-	big_experiment_simple();
+	big_experiment();
 }
