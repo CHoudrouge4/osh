@@ -183,7 +183,7 @@ bool TS::runInternal(long long timeout, bool use_timeout, bool rand_S) {
 	Bvec S = opt_vec;
 
 	record_begin();
-	for(int k = 0; use_timeout ? true : (k < 10*max_itr); k++) {
+	for(int k = 0; use_timeout ? true : (k < max_itr); k++) {
 		Bvec S_plus = S;
 		int index = 0;
 
@@ -251,6 +251,37 @@ SALS::SALS(Labs l) : Solver(l) { }
 
 SALS::SALS(const SALS& s) : SALS(s.labs) { }
 
+// Single ascent
+double SALS::single_run(Bvec& S_star) {
+	// Follow the steepest ascent path until we can, S_star
+	// moves from random to somewhat optimum.
+	double f_star = std::numeric_limits<double>::min();
+	bool improvement = false;
+	for (int k = 0; not improvement; k++) {
+		double f_plus = std::numeric_limits<double>::min();
+
+		// Search for the move
+		init_flip_value(S_star);
+		int index = 0;
+		for(int j = 0; j < labs.N; ++j) {
+			double f_neighbour = flip_value(j);
+			if(f_neighbour > f_plus) {
+				f_plus = f_neighbour;
+				index = j;
+				improvement = true;
+			}
+		}
+
+		// Make this move
+		if (f_plus > f_star) {
+			S_star.flip_bit(index);
+			f_star = f_plus;
+			improvement = true;
+		} else improvement = false;
+	}
+	return f_star;
+}
+
 bool SALS::run(long long timeout) {
 
 	opt_vec.randomise();
@@ -264,32 +295,7 @@ bool SALS::run(long long timeout) {
 		// Each time we start from something new
 		sbm(S_star);
 
-		// Follow the steepest ascent path until we can, S_star
-		// moves from random to somewhat optimum.
-		double f_star = std::numeric_limits<double>::min();
-		bool improvement = false;
-		for (int k = 0; not improvement; k++) {
-			double f_plus = std::numeric_limits<double>::min();
-
-			// Search for the move
-			init_flip_value(S_star);
-			int index = 0;
-			for(int j = 0; j < labs.N; ++j) {
-				double f_neighbour = flip_value(j);
-				if(f_neighbour > f_plus) {
-					f_plus = f_neighbour;
-					index = j;
-					improvement = true;
-				}
-			}
-
-			// Make this move
-			if (f_plus > f_star) {
-				S_star.flip_bit(index);
-				f_star = f_plus;
-				improvement = true;
-			} else improvement = false;
-		}
+		double f_star = single_run(S_star);
 
 		// After an improvement round check whether this S_star is
 		// better than what we have.
@@ -317,15 +323,13 @@ Solver* SALS::clone() const { return new SALS(*this); }
 
 MA::MA(Labs l)
 	: Solver(l)
-	, ts(TS(l))
-	, popsize(10)
-	, offsize(50)
+	, popsize(130)
 	, px(0.9)
 	, pm(1/((double)l.N)) {
 	ppl = std::vector<Bvec> (popsize, Bvec(l.N));
 	ppl_val = std::vector<double>(popsize);
-	offsprings = std::vector<Bvec> (offsize, Bvec(l.N));
-	off_val = std::vector<double>(offsize);
+	offsprings = std::vector<Bvec> (popsize, Bvec(l.N));
+	off_val = std::vector<double>(popsize);
 	uni_dis_popsize = std::uniform_int_distribution<int>(0,popsize-1); // [0,popsize-1]
 }
 
@@ -337,9 +341,6 @@ std::string MA::get_name() const { return "ma"; }
 
 bool MA::run(long long timeout) {
 
-	// Cache for moving optimums from offsprings to population
-	std::unordered_set<int> cache;
-
 	for(size_t i = 0; i < ppl.size(); ++i) {
 		ppl[i].randomise();
 		ppl_val[i] = labs.F(ppl[i]);
@@ -348,9 +349,11 @@ bool MA::run(long long timeout) {
 	opt_vec.randomise();
 	opt = labs.F(opt_vec);
 
+	TS sub(labs);
+
 	record_begin();
 	for(int k = 0; true; k++) {
-		for(int i = 0; i < offsize; ++i) {
+		for(int i = 0; i < popsize; ++i) {
 			double rnd = uni_dis_one(gen);
 			if(rnd <= px) {
 				single_point_crossover( offsprings[i]
@@ -360,39 +363,32 @@ bool MA::run(long long timeout) {
 				offsprings[i] = ppl[uni_dis_popsize(gen)];
 			}
 
-			if(uni_dis_one(gen) <= pm) sbm(offsprings[i], 2);
+			if(uni_dis_one(gen) <= pm) sbm(offsprings[i]);
 
-			ts.runFromS(offsprings[i]);
-			labs.calls_num += ts.get_Labs().calls_num;
-			assert(ts.get_opt() >= labs.F(offsprings[i]));
-			offsprings[i] = ts.get_opt_vec();
-			off_val[i] = ts.get_opt();
-			ts.reset();
+			sub.runFromS(offsprings[i]);
+			labs.calls_num += sub.get_Labs().calls_num;
+			assert(sub.get_opt() >= labs.F(offsprings[i]));
+			offsprings[i] = sub.get_opt_vec();
+			off_val[i] = sub.get_opt();
+			sub.reset();
 		}
 
 		// Get optimums
 		auto oldOpt = opt;
 
-		// Replace (put 'popsize' optimal values from offsprings to pop)
-		cache.clear();
+		// Replace
+		int best_index = 0;
 		for(int i = 0; i < popsize; i++) {
-			int best_index = 0;
-			int best_val = 0;
-			for (int j = 0; j < offsize; j++) {
-				bool not_in_cache = cache.find(j) == cache.end();
-				if (off_val[i] > best_val && not_in_cache) {
-					best_index = i;
-					best_val = off_val[i];
-				}
-			}
-			cache.insert(best_index);
-			ppl[i] = offsprings[best_index];
-			ppl_val[i] = off_val[best_index];
+			ppl[i] = offsprings[i];
+			ppl_val[i] = off_val[i];
+			if (off_val[i] > ppl_val[best_index]) best_index = i;
 		}
 
-		opt_vec = ppl[0];
-		opt = ppl_val[0];
-		if (opt > oldOpt) { record_current(); }
+		if (ppl_val[best_index] > oldOpt) {
+			opt_vec = ppl[best_index];
+			opt = ppl_val[best_index];
+			record_current();
+		}
 
 
 		if (opt == labs.optF) { running_time = get_running_time_ms(); return true; }

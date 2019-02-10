@@ -90,6 +90,8 @@ public:
 	Solver* clone() const;
 	std::string get_name() const;
 
+	double single_run(Bvec&);
+
 	bool run(long long timeout);
 };
 
@@ -105,10 +107,7 @@ public:
 	bool run(long long timeout);
 
 private:
-	TS ts;
-
 	const int popsize;
-	const int offsize;
 	const double px;
 	const double pm;
 
