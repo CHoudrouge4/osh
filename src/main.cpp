@@ -181,6 +181,36 @@ void big_experiment() {
 	for (auto x : solvers) free(get<0>(x));
 }
 
+void test_speed() {
+	int threads_num = 8;
+	int sample_size = 30;
+	int timeout = 180000;
+	int nLo = 50;
+	int nHi = 51;
+	Runner r;
+
+	vector<pair<Solver*, long long>> solvers;
+	for (int n = nLo; n <= nHi; n++) {
+		Labs l(n);
+
+		Solver* sa = new SA(l, 0.15, 15000);
+		solvers.push_back(make_pair(sa,timeout));
+
+		Solver* ma = new MA(l);
+		solvers.push_back(make_pair(ma,timeout));
+
+		Solver* ts = new TS(l);
+		solvers.push_back(make_pair(ts,timeout));
+
+		Solver* sals = new SALS(l);
+		solvers.push_back(make_pair(sals,timeout));
+	}
+
+	r.execute(solvers, threads_num, sample_size, "plotData/speed_comparison");
+
+	for (auto x : solvers) free(get<0>(x));
+}
+
 int main () {
 	//measure_SA(25);
 	//simpleDemo();
@@ -190,5 +220,6 @@ int main () {
 	//test_MA();
 	//choose_SA_params();
 
-	big_experiment();
+	//big_experiment();
+	test_speed();
 }
