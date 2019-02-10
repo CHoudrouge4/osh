@@ -154,26 +154,24 @@ bool SA::run(long long timeout) {
 
 // Tabu search
 
-TS::TS(Labs l, const int max_itr) : Solver(l), max_itr(max_itr), S(labs.N) {
-	assert(max_itr >= 1);
+TS::TS(Labs l) : Solver(l), S(labs.N) {
 	M = std::vector<int>(l.N, 0);
-	opt_vec = Bvec(labs.N);
-	sbm(S);
 }
-
-TS::TS(const TS& s) : TS(s.labs, s.max_itr) {
-	this->M = s.M;
-	this->opt_vec  = s.opt_vec;
-	this->S = s.S;
-}
+TS::TS(const TS& s) : TS(s.labs) { }
 TS* TS::clone() const { return new TS(*this); }
 std::string TS::get_name() const { return "tabu"; }
 
 bool TS::runInternal(long long timeout, bool use_timeout) {
+	int var_factor = uni_dis_N(gen) / 2;
+	int var_factor_sign = var_factor - var_factor / 2;
+	// N +- N/4, paper suggests N +- N/2
+	int max_itr = labs.N + var_factor_sign;
+
 	const int min_tabu = max_itr/10;
 	const int extra_tabu = max_itr/50;
 	std::uniform_int_distribution<int> urand(0, std::max(extra_tabu - 1, 1));
 
+	S.randomise();
 	record_begin();
 	for(int i = 0; use_timeout ? true : (i < max_itr); ++i) {
 		Bvec opt_vec_current = S;
@@ -220,7 +218,6 @@ bool TS::runInternal(long long timeout, bool use_timeout) {
 
 bool TS::run(long long timeout) { return runInternal(timeout,true); }
 
-void TS::set_max_itr(const int itr) { max_itr = itr; }
 void TS::set_S(const Bvec s) { S = s; }
 
 void TS::test_flip_val() {
@@ -267,11 +264,7 @@ bool MA::run(long long timeout) {
 		ppl_val[i] = labs.F(ppl[i]);
 	}
 
-	int max_itr = 1000; // TODO set up to random
-
-	TS local_search(this->labs, max_itr);
-
-	// TODO record_current is broken! We don't record cntProb!
+	TS local_search(this->labs);
 
 	record_begin();
 	for(int k = 0; true; ++k) {
@@ -288,8 +281,10 @@ bool MA::run(long long timeout) {
 
 			local_search.set_S(offsprings[i]);
 			local_search.runInternal(0, false);
+			labs.calls_num += local_search.get_Labs().calls_num;
 			offsprings[i] = local_search.get_opt_vec();
 			off_val[i] = local_search.get_opt();
+			local_search.reset();
 		}
 
 		// Replace

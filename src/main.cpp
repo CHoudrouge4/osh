@@ -113,16 +113,18 @@ void test_TS() {
 	const int n = 25;
 	const int timeout = 20000;
 	const int threads_num = 3;
-	const int sample_size = 20;
+	const int sample_size = 40;
 
 	Labs l(n);
-	TS ts(l, 22);
+	TS ts(l);
 
 	Runner r;
 	vector<pair<Solver*, long long>> solvers;
 	solvers.push_back(make_pair(&ts, timeout));
 
 	r.execute(solvers, threads_num, sample_size, "plotData/ts_demo_run");
+
+	// 9087 sec with 2N
 }
 
 void test_ASLS() {
@@ -134,7 +136,7 @@ void test_ASLS() {
 }
 
 void test_MA() {
-	const int n = 22;
+	const int n = 25;
 	const int timeout = 20000;
 	const int threads_num = 3;
 	const int sample_size = 20;
@@ -168,14 +170,39 @@ void predict_timeout_sa() {
 	for (auto x : solvers) free(get<0>(x));
 }
 
+void big_experiment_1() {
+	int threads_num = 8;
+	int sample_size = 50;
+	int timeout = 60000;
+	int nLo = 15;
+	int nHi = 35;
+	Runner r;
+
+	vector<pair<Solver*, long long>> solvers;
+	for (int n = nLo; n <= nHi; n++) {
+		Labs l(n);
+
+		Solver* sa = new SA(l, 0.15, 15000);
+		solvers.push_back(make_pair(sa,timeout));
+
+		Solver* ts = new TS(l);
+		solvers.push_back(make_pair(ts,timeout));
+
+	}
+
+	r.execute(solvers, threads_num, sample_size, "plotData/big_experiment_1");
+
+	for (auto x : solvers) free(get<0>(x));
+}
+
 int main () {
 	//measure_SA(25);
 	//simpleDemo();
 	//testing_SA();
-	test_TS();
+	//test_TS();
 	//test_ASLS();
 	//measure_SA(25, 2);
 	//predict_timeout_sa();
-	//test_MA();
+	test_MA();
 	//choose_SA_params();
 }

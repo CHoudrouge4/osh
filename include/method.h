@@ -64,7 +64,7 @@ private:
 class TS : public Solver {
 
 public:
-	TS(Labs, const int itr);
+	TS(Labs);
 	TS(const TS&);
 	TS* clone() const;
 
@@ -75,7 +75,6 @@ public:
 	// normal solver. Otherwise it does max_itr.
 	bool runInternal(long long timeout, bool use_timeout);
 
-	void set_max_itr(const int);
 	void set_S(const Bvec s);
 	void test_flip_val();
 

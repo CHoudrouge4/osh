@@ -15,6 +15,8 @@ struct Solver {
 
 	virtual Solver* clone() const = 0;
 
+	// Get labs instance
+	Labs get_Labs();
 	// Get instance size;
 	int get_N();
 	// Optimal f
