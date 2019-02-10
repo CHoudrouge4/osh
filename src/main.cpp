@@ -157,8 +157,14 @@ void big_experiment() {
 	for (int n = nLo; n <= nHi; n++) {
 		Labs l(n);
 
-		//Solver* sa = new SA(l, 0.15, 15000);
-		//solvers.push_back(make_pair(sa,timeout));
+		//Solver* mul = new MuLambda(l,10,150,0.9);
+		//solvers.push_back(make_pair(mul,timeout));
+		//
+		//Solver* opo = new OnePlusOne(l);
+		//solvers.push_back(make_pair(opo,timeout));
+
+		Solver* sa = new SA(l, 0.15, 15000);
+		solvers.push_back(make_pair(sa,timeout));
 
 		Solver* ma = new MA(l);
 		solvers.push_back(make_pair(ma,timeout));
