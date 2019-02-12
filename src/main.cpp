@@ -183,10 +183,10 @@ void big_experiment() {
 
 void test_speed() {
 	int threads_num = 8;
-	int sample_size = 30;
-	int timeout = 180000;
-	int nLo = 50;
-	int nHi = 51;
+	int sample_size = 100;
+	int timeout = 240000;
+	int nLo = 55;
+	int nHi = 55;
 	Runner r;
 
 	vector<pair<Solver*, long long>> solvers;
